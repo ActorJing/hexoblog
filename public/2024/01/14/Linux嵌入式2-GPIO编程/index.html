@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Linux嵌入式2-GPIO编程 | 我超爱大海的</title>
+  <meta name="description" content="头文件说明&lt;sys&#x2F;types.h&gt;：该头文件定义了一些基本的系统数据类型，如size_t、time_t等。 &lt;sys&#x2F;stat.h&gt;：该头文件定义了一些关于文件状态的函数和宏，如stat()、S_IRUSR等。 &lt;fcntl.h&gt;：该头文件定义了一些文件控制操作的函数和常量，如open()、O_RDONLY等。 &lt;unistd.h&gt;：该头文件定义了一些系统调用函数，如re">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux嵌入式2-GPIO编程">
+<meta property="og:url" content="https://actorjing.github.io/2024/01/14/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F2-GPIO%E7%BC%96%E7%A8%8B/index.html">
+<meta property="og:site_name" content="我超爱大海的">
+<meta property="og:description" content="头文件说明&lt;sys&#x2F;types.h&gt;：该头文件定义了一些基本的系统数据类型，如size_t、time_t等。 &lt;sys&#x2F;stat.h&gt;：该头文件定义了一些关于文件状态的函数和宏，如stat()、S_IRUSR等。 &lt;fcntl.h&gt;：该头文件定义了一些文件控制操作的函数和常量，如open()、O_RDONLY等。 &lt;unistd.h&gt;：该头文件定义了一些系统调用函数，如re">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/image-20231015142048558.png">
+<meta property="og:image" content="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/image-20231015142724436.png">
+<meta property="article:published_time" content="2024-01-14T04:42:33.000Z">
+<meta property="article:modified_time" content="2024-07-05T16:06:27.652Z">
+<meta property="article:author" content="Jing Wu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/image-20231015142048558.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://actorjing.github.io/2024/01/14/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F2-GPIO%E7%BC%96%E7%A8%8B/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="我超爱大海的" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/title_logo.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/ActorJing" target="_blank">
+          <img class="img-circle img-rotate" src="/images/actor.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">我超爱大海的</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">long time no see</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Hefei, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-books">
+          <a href="/book">
+            
+            <i class="icon icon-book-fill"></i>
+            
+            <span class="menu-title">书单</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/FOC%E5%AD%A6%E4%B9%A0/">FOC学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%A6%E4%B9%A0/">Linux嵌入式学习</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97/">工作日志</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%91%84%E5%BD%B1%E6%97%A5%E8%AE%B0/">摄影日记</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/07/">七月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">二月 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/01/">一月 2024</a><span class="archive-list-count">11</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97/">工作日志</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/07/05/%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97/" class="title">工作日志</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-07-05T13:57:10.000Z" itemprop="datePublished">2024-07-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%91%84%E5%BD%B1%E6%97%A5%E8%AE%B0/">摄影日记</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/02/15/2024-2-15%E4%B8%9C%E8%87%B3%E5%8E%BF%E5%9F%8E/" class="title">2024-2-15东至县城</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-02-15T02:41:49.000Z" itemprop="datePublished">2024-02-15</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%A6%E4%B9%A0/">Linux嵌入式学习</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/02/06/%E5%B5%8C%E5%85%A5%E5%BC%8FLinux6-UART%E4%B8%B2%E5%8F%A3/" class="title">嵌入式Linux6-UART串口</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-02-06T15:09:33.000Z" itemprop="datePublished">2024-02-06</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%A6%E4%B9%A0/">Linux嵌入式学习</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/01/31/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F5-FrameBuffer%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B/" class="title">Linux嵌入式5-FrameBuffer应用编程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-01-31T03:49:08.000Z" itemprop="datePublished">2024-01-31</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%91%84%E5%BD%B1%E6%97%A5%E8%AE%B0/">摄影日记</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/01/29/2024-1-25%E7%BA%A2%E6%98%9F%E8%B7%AF%E4%BA%92%E5%8B%89/" class="title">2024-1-25红星路互勉</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-01-29T07:21:49.000Z" itemprop="datePublished">2024-01-29</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%B4%E6%96%87%E4%BB%B6%E8%AF%B4%E6%98%8E"><span class="toc-number">1.</span> <span class="toc-text">头文件说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E8%AF%B4%E6%98%8E"><span class="toc-number">2.</span> <span class="toc-text">函数说明</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81GPIO%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B"><span class="toc-number"></span> <span class="toc-text">一、GPIO应用编程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%9F%BA%E7%A1%80%E5%B1%9E%E6%80%A7%EF%BC%9A"><span class="toc-number">1.</span> <span class="toc-text">1、基础属性：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81gpio-config%E5%87%BD%E6%95%B0"><span class="toc-number">2.</span> <span class="toc-text">2、gpio_config函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81poll-%E5%87%BD%E6%95%B0"><span class="toc-number">3.</span> <span class="toc-text">3、poll()函数</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Linux嵌入式2-GPIO编程" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Linux嵌入式2-GPIO编程
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2024/01/14/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F2-GPIO%E7%BC%96%E7%A8%8B/" class="article-date">
+	  <time datetime="2024-01-14T04:42:33.000Z" itemprop="datePublished">2024-01-14</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%A6%E4%B9%A0/">Linux嵌入式学习</a>
+  </span>
+
+        
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2024/01/14/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F2-GPIO%E7%BC%96%E7%A8%8B/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h3 id="头文件说明"><a href="#头文件说明" class="headerlink" title="头文件说明"></a>头文件说明</h3><pre class=" language-c"><code class="language-c"><span class="token operator">&lt;</span>sys<span class="token operator">/</span>types<span class="token punctuation">.</span>h<span class="token operator">></span>：该头文件定义了一些基本的系统数据类型，如size_t、time_t等。
+<span class="token operator">&lt;</span>sys<span class="token operator">/</span>stat<span class="token punctuation">.</span>h<span class="token operator">></span>：该头文件定义了一些关于文件状态的函数和宏，如<span class="token function">stat</span><span class="token punctuation">(</span><span class="token punctuation">)</span>、S_IRUSR等。
+<span class="token operator">&lt;</span>fcntl<span class="token punctuation">.</span>h<span class="token operator">></span>：该头文件定义了一些文件控制操作的函数和常量，如<span class="token function">open</span><span class="token punctuation">(</span><span class="token punctuation">)</span>、O_RDONLY等。
+<span class="token operator">&lt;</span>unistd<span class="token punctuation">.</span>h<span class="token operator">></span>：该头文件定义了一些系统调用函数，如<span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span>、<span class="token function">write</span><span class="token punctuation">(</span><span class="token punctuation">)</span>等。
+</code></pre>
+<h3 id="函数说明"><a href="#函数说明" class="headerlink" title="函数说明"></a>函数说明</h3><pre class=" language-c"><code class="language-c"><span class="token keyword">int</span> <span class="token function">access</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>pathname<span class="token punctuation">,</span> <span class="token keyword">int</span> mode<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">/*
+mode 是要检查的权限模式。常用的权限模式有以下几种：
+
+F_OK：用于检查文件或目录是否存在。
+R_OK：用于检查文件或目录是否可读。
+W_OK：用于检查文件或目录是否可写。
+X_OK：用于检查文件或目录是否可执行。
+存在返回0，不存在返回-1
+*/</span>   
+    
+len <span class="token operator">=</span> <span class="token function">strlen</span><span class="token punctuation">(</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>len <span class="token operator">!=</span> <span class="token function">write</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span>len<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+
+        <span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">/*
+write函数向文件写入数据，写入argv[1]字符串，后面接写入的字节数，成功返回写入的字节数
+*/</span>
+</code></pre>
+<h2 id="一、GPIO应用编程"><a href="#一、GPIO应用编程" class="headerlink" title="一、GPIO应用编程"></a>一、GPIO应用编程</h2><h3 id="1、基础属性："><a href="#1、基础属性：" class="headerlink" title="1、基础属性："></a>1、基础属性：</h3><p>gpio设备目录在&#x2F;sys&#x2F;class&#x2F;gpio中：</p>
+<p><img src="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/image-20231015142048558.png" alt="image-20231015142048558"></p>
+<p>gpiochip0<del>128分别对应i.max6ull的五组gpio1</del>5，export用来导出指定编号的gpio，加入需要导出GPIO4_IO20，首先需要确定GPIO的编号，GPIO4对应gpiochip96，编号为94+20&#x3D;114</p>
+<p>执行导出命令为echo 94 &gt; export</p>
+<p>以导出GPIO0_IO1为例：执行echo 1 &gt; export，会生成一个gpio1的文件夹，里面描述了gpio1的相关信息：</p>
+<p><img src="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/image-20231015142724436.png" alt="image-20231015142724436"></p>
+<pre class=" language-c"><code class="language-c">dirction<span class="token punctuation">:</span> IO的方向可以设置为out 和 in
+active_low<span class="token punctuation">:</span> 电平逻辑状态，默认为<span class="token number">0</span>，此时<span class="token number">1</span>为高电平 <span class="token number">0</span>为低电平
+value： 电平状态
+edge<span class="token punctuation">:</span> 中断触发：none rising falling both分别表示无触发、上升沿、下降沿、边沿触发
+</code></pre>
+<h3 id="2、gpio-config函数"><a href="#2、gpio-config函数" class="headerlink" title="2、gpio_config函数"></a>2、gpio_config函数</h3><pre class=" language-c"><code class="language-c"><span class="token comment" spellcheck="true">/*
+    path：gpioX路径	/sys/class/gpio/gpio1
+    attr：需要修改的属性 direction
+    value：修改的具体值	out
+*/</span>
+<span class="token keyword">int</span> <span class="token function">gpio_config</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>path<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>attr<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">char</span> <span class="token operator">*</span>val<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">int</span> fd<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> len<span class="token punctuation">;</span>
+    <span class="token keyword">char</span> file_path<span class="token punctuation">[</span><span class="token number">100</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">// 拼接字符串</span>
+    <span class="token function">sprintf</span><span class="token punctuation">(</span>file_path<span class="token punctuation">,</span><span class="token string">"%s/%s"</span><span class="token punctuation">,</span> path<span class="token punctuation">,</span> attr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">// 打开文件</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">></span> <span class="token punctuation">(</span>fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span>file_path<span class="token punctuation">,</span> O_WRONLY<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"open gpio error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment" spellcheck="true">// 向文件写入指定长度的数据</span>
+    len <span class="token operator">=</span> <span class="token function">strlen</span><span class="token punctuation">(</span>val<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>len <span class="token operator">!=</span> <span class="token function">write</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> val<span class="token punctuation">,</span> len<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"write info error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span><span class="token string">"write success!\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">// main函数：</span>
+<span class="token comment" spellcheck="true">// 判断输入的gpioX是否存在，不存在需要通过写export文件导出IO</span>
+<span class="token function">sprintf</span><span class="token punctuation">(</span>gpio_path<span class="token punctuation">,</span><span class="token string">"/sys/class/gpio/gpio%s"</span><span class="token punctuation">,</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">access</span><span class="token punctuation">(</span>gpio_path<span class="token punctuation">,</span>F_OK<span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token keyword">int</span> fd<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> len<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">></span> <span class="token punctuation">(</span>fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span><span class="token string">"/sys/class/gpio/export"</span><span class="token punctuation">,</span>O_WRONLY<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"open export error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    len <span class="token operator">=</span> <span class="token function">strlen</span><span class="token punctuation">(</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>len <span class="token operator">!=</span> <span class="token function">write</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span>len<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"write error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">gpio_config</span><span class="token punctuation">(</span>gpio_path<span class="token punctuation">,</span><span class="token string">"direction"</span><span class="token punctuation">,</span> <span class="token string">"in"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span><span class="token string">"write direction error\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">gpio_config</span><span class="token punctuation">(</span>gpio_path<span class="token punctuation">,</span><span class="token string">"active_low"</span><span class="token punctuation">,</span> <span class="token string">"0"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span><span class="token string">"write active_low error\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">gpio_config</span><span class="token punctuation">(</span>gpio_path<span class="token punctuation">,</span><span class="token string">"value"</span><span class="token punctuation">,</span> argv<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span><span class="token string">"write value error\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="3、poll-函数"><a href="#3、poll-函数" class="headerlink" title="3、poll()函数"></a>3、poll()函数</h3><pre class=" language-c"><code class="language-c"><span class="token comment" spellcheck="true">// 使用poll()函数实现非阻塞式中断触发</span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>argv<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">char</span> gpio_path<span class="token punctuation">[</span><span class="token number">100</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">char</span> file_path<span class="token punctuation">[</span><span class="token number">100</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">// 创建pollfd结构体，描述文件就绪状态</span>
+    <span class="token keyword">struct</span> pollfd pfd<span class="token punctuation">;</span>
+    <span class="token keyword">char</span> val<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> ret<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">2</span> <span class="token operator">!=</span> argc<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span><span class="token string">"usage:%s &lt;gpio> &lt;value>\n"</span><span class="token punctuation">,</span> argv<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token function">sprintf</span><span class="token punctuation">(</span>gpio_path<span class="token punctuation">,</span><span class="token string">"/sys/class/gpio/gpio%s"</span><span class="token punctuation">,</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">access</span><span class="token punctuation">(</span>gpio_path<span class="token punctuation">,</span>F_OK<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">int</span> fd<span class="token punctuation">;</span>
+        <span class="token keyword">int</span> len<span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">></span> <span class="token punctuation">(</span>fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span><span class="token string">"/sys/class/gpio/export"</span><span class="token punctuation">,</span>O_WRONLY<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"open export error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        len <span class="token operator">=</span> <span class="token function">strlen</span><span class="token punctuation">(</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>len <span class="token operator">!=</span> <span class="token function">write</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span>len<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"write error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">gpio_config</span><span class="token punctuation">(</span>gpio_path<span class="token punctuation">,</span><span class="token string">"direction"</span><span class="token punctuation">,</span> <span class="token string">"in"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span><span class="token string">"write direction error\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">gpio_config</span><span class="token punctuation">(</span>gpio_path<span class="token punctuation">,</span><span class="token string">"active_low"</span><span class="token punctuation">,</span> <span class="token string">"0"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span><span class="token string">"write active_low error\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment" spellcheck="true">// 配置为边沿触发</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token function">gpio_config</span><span class="token punctuation">(</span>gpio_path<span class="token punctuation">,</span><span class="token string">"edge"</span><span class="token punctuation">,</span> <span class="token string">"both"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span><span class="token string">"write edge error\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment" spellcheck="true">// 打开IO状态value文件，文件描述符保存在pfd.fd</span>
+    <span class="token function">sprintf</span><span class="token punctuation">(</span>file_path<span class="token punctuation">,</span><span class="token string">"%s/%s"</span><span class="token punctuation">,</span> gpio_path<span class="token punctuation">,</span> <span class="token string">"value"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">></span> <span class="token punctuation">(</span>pfd<span class="token punctuation">.</span>fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span>file_path<span class="token punctuation">,</span>O_RDONLY<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"open pfd.fd error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    
+    pfd<span class="token punctuation">.</span>events <span class="token operator">=</span> POLLPRI<span class="token punctuation">;</span><span class="token comment" spellcheck="true">// 只关心高优先级数据可读 中断 只有高优先级才会触发文件转换为就绪态</span>
+    <span class="token function">read</span><span class="token punctuation">(</span>pfd<span class="token punctuation">.</span>fd<span class="token punctuation">,</span> <span class="token operator">&amp;</span>val<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">// 读取一次清除状态</span>
+    <span class="token comment" spellcheck="true">//轮询读取</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token punctuation">;</span><span class="token punctuation">;</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">// 监听pfd文件状态，内部有一个文件描述符 超时时间-1</span>
+        ret <span class="token operator">=</span> <span class="token function">poll</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>pfd<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">></span> ret<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"poll error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">else</span> <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">==</span> ret<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span><span class="token string">"poll time out"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment" spellcheck="true">// 事件触发</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>pfd<span class="token punctuation">.</span>revents <span class="token operator">&amp;</span> POLLPRI<span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">// 因为之前读取过文件，需要移动指针到0</span>
+            <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">></span> <span class="token function">lseek</span><span class="token punctuation">(</span>pfd<span class="token punctuation">.</span>fd<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> SEEK_SET<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+                <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"lseek error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token comment" spellcheck="true">// 读取文件</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">></span> <span class="token function">read</span><span class="token punctuation">(</span>pfd<span class="token punctuation">.</span>fd<span class="token punctuation">,</span> <span class="token operator">&amp;</span>val<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+            <span class="token punctuation">{</span>
+                <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"read pfd.fd error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"get interupt &lt;value=%c>\n"</span><span class="token punctuation">,</span> val<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token punctuation">}</span>
+        
+    <span class="token punctuation">}</span>
+    
+    <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://actorjing.github.io/2024/01/14/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F2-GPIO%E7%BC%96%E7%A8%8B/" title="Linux嵌入式2-GPIO编程" target="_blank" rel="external">https://actorjing.github.io/2024/01/14/Linux嵌入式2-GPIO编程/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/ActorJing" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/actor.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/ActorJing" target="_blank"><span class="text-dark">我超爱大海的</span><small class="ml-1x">long time no see</small></a></h3>
+        <div>个人简介。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2024/01/14/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F3-%E8%BE%93%E5%85%A5%E8%AE%BE%E5%A4%87/" title="Linux嵌入式3-输入设备"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2024/01/14/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F1-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" title="Linux嵌入式1-启动开发环境"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">    <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!-- <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+    <div class="copyright">
+    	
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer> -->
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'tYxMN2OZzN0cW9hwBDlP5EEV-gzGzoHsz',
+    appKey: '2KwEcCdsaVhXls99AiMISWuZ',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+
+<script src="false"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":300,"height":600},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>

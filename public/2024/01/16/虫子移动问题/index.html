@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>虫子移动问题 | 我超爱大海的</title>
+  <meta name="description" content="虫子移动问题1、问题描述：存在一个5行12列的表格，第一列有5只虫子，编号1，2，3，4，5；每只虫子的移动方向只能是向右、右上方、右下方三种方向；5只虫子进行移动操作后到达第二列，要求每一行都存在一只虫子，同样的要求，五只虫子要到达第12列，虫子每次移动操作对应着不同的权重矩阵相加，虫子从第1列到达第12列的过程存在很多种权重矩阵和，找出权重矩阵方差最小的路线。问题简化如下：  简化：存在一个5">
+<meta property="og:type" content="article">
+<meta property="og:title" content="虫子移动问题">
+<meta property="og:url" content="https://actorjing.github.io/2024/01/16/%E8%99%AB%E5%AD%90%E7%A7%BB%E5%8A%A8%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="我超爱大海的">
+<meta property="og:description" content="虫子移动问题1、问题描述：存在一个5行12列的表格，第一列有5只虫子，编号1，2，3，4，5；每只虫子的移动方向只能是向右、右上方、右下方三种方向；5只虫子进行移动操作后到达第二列，要求每一行都存在一只虫子，同样的要求，五只虫子要到达第12列，虫子每次移动操作对应着不同的权重矩阵相加，虫子从第1列到达第12列的过程存在很多种权重矩阵和，找出权重矩阵方差最小的路线。问题简化如下：  简化：存在一个5">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/image-20240116215034998.png">
+<meta property="og:image" content="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/76e2d06a407a2f804d2c0f779d49c3c.png">
+<meta property="article:published_time" content="2024-01-16T13:41:05.000Z">
+<meta property="article:modified_time" content="2024-07-05T16:05:53.616Z">
+<meta property="article:author" content="Jing Wu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/image-20240116215034998.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://actorjing.github.io/2024/01/16/%E8%99%AB%E5%AD%90%E7%A7%BB%E5%8A%A8%E9%97%AE%E9%A2%98/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="我超爱大海的" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/title_logo.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/ActorJing" target="_blank">
+          <img class="img-circle img-rotate" src="/images/actor.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">我超爱大海的</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">long time no see</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Hefei, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-books">
+          <a href="/book">
+            
+            <i class="icon icon-book-fill"></i>
+            
+            <span class="menu-title">书单</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/FOC%E5%AD%A6%E4%B9%A0/">FOC学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%A6%E4%B9%A0/">Linux嵌入式学习</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97/">工作日志</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%91%84%E5%BD%B1%E6%97%A5%E8%AE%B0/">摄影日记</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/07/">七月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">二月 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/01/">一月 2024</a><span class="archive-list-count">11</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97/">工作日志</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/07/05/%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97/" class="title">工作日志</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-07-05T13:57:10.000Z" itemprop="datePublished">2024-07-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%91%84%E5%BD%B1%E6%97%A5%E8%AE%B0/">摄影日记</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/02/15/2024-2-15%E4%B8%9C%E8%87%B3%E5%8E%BF%E5%9F%8E/" class="title">2024-2-15东至县城</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-02-15T02:41:49.000Z" itemprop="datePublished">2024-02-15</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%A6%E4%B9%A0/">Linux嵌入式学习</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/02/06/%E5%B5%8C%E5%85%A5%E5%BC%8FLinux6-UART%E4%B8%B2%E5%8F%A3/" class="title">嵌入式Linux6-UART串口</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-02-06T15:09:33.000Z" itemprop="datePublished">2024-02-06</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%A6%E4%B9%A0/">Linux嵌入式学习</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/01/31/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F5-FrameBuffer%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B/" class="title">Linux嵌入式5-FrameBuffer应用编程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-01-31T03:49:08.000Z" itemprop="datePublished">2024-01-31</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%91%84%E5%BD%B1%E6%97%A5%E8%AE%B0/">摄影日记</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/01/29/2024-1-25%E7%BA%A2%E6%98%9F%E8%B7%AF%E4%BA%92%E5%8B%89/" class="title">2024-1-25红星路互勉</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-01-29T07:21:49.000Z" itemprop="datePublished">2024-01-29</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%99%AB%E5%AD%90%E7%A7%BB%E5%8A%A8%E9%97%AE%E9%A2%98"><span class="toc-number">1.</span> <span class="toc-text">虫子移动问题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0%EF%BC%9A"><span class="toc-number">1.1.</span> <span class="toc-text">1、问题描述：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%80%E5%8C%96%EF%BC%9A"><span class="toc-number">1.2.</span> <span class="toc-text">简化：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E6%B1%82%E8%A7%A3%E6%80%9D%E8%B7%AF%EF%BC%9A"><span class="toc-number">1.3.</span> <span class="toc-text">2、求解思路：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C%EF%BC%9A"><span class="toc-number">1.4.</span> <span class="toc-text">3、运行结果：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E7%A8%8B%E5%BA%8F%E6%BA%90%E7%A0%81%EF%BC%9A"><span class="toc-number">1.5.</span> <span class="toc-text">4、程序源码：</span></a></li></ol></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-虫子移动问题" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      虫子移动问题
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2024/01/16/%E8%99%AB%E5%AD%90%E7%A7%BB%E5%8A%A8%E9%97%AE%E9%A2%98/" class="article-date">
+	  <time datetime="2024-01-16T13:41:05.000Z" itemprop="datePublished">2024-01-16</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>
+  </span>
+
+        
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2024/01/16/%E8%99%AB%E5%AD%90%E7%A7%BB%E5%8A%A8%E9%97%AE%E9%A2%98/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h1 id="虫子移动问题"><a href="#虫子移动问题" class="headerlink" title="虫子移动问题"></a>虫子移动问题</h1><h2 id="1、问题描述："><a href="#1、问题描述：" class="headerlink" title="1、问题描述："></a>1、问题描述：</h2><p>存在一个5行12列的表格，第一列有5只虫子，编号1，2，3，4，5；每只虫子的移动方向只能是向右、右上方、右下方三种方向；5只虫子进行移动操作后到达第二列，要求每一行都存在一只虫子，同样的要求，五只虫子要到达第12列，虫子每次移动操作对应着不同的权重矩阵相加，虫子从第1列到达第12列的过程存在很多种权重矩阵和，找出权重矩阵方差最小的路线。问题简化如下：</p>
+<p><img src="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/image-20240116215034998.png" alt="image-20240116215034998"></p>
+<h2 id="简化："><a href="#简化：" class="headerlink" title="简化："></a>简化：</h2><p>存在一个5*12的表格，第一列为1<del>5，每个数可以进行-1，不变，+1的操作，进入到下一列，要求进入到下一列的五个数范围还在1</del>5，且不能重复，每次操作对应不同的权重矩阵，求到第12列时，权重矩阵方差最小的移动方案。</p>
+<h2 id="2、求解思路："><a href="#2、求解思路：" class="headerlink" title="2、求解思路："></a>2、求解思路：</h2><p>已知1<del>5个数字任意组合一共有5！（120）种方案，通过暴力破解验证得到每种组合按照题目要求移动一列都存在8种情况，这样可以知道一共有120*8种生成子集，可以通过查表法省去迭代的时间。先建立一个列表，一维空间为10000，查表下标计算为六进制，考虑一共有5个数，数字范围在1</del>5且不重复，<strong>使用六进制可以间接的描述出表的下标，存在的缺陷就是造成空间浪费，实际只有120个下标用到</strong>，二维空间为对应的8种情况序列。建表过程为：</p>
+<pre class=" language-python"><code class="language-python">numbers <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">]</span>
+<span class="token comment" spellcheck="true"># 列出所有排列</span>
+permutations <span class="token operator">=</span> list<span class="token punctuation">(</span>itertools<span class="token punctuation">.</span>permutations<span class="token punctuation">(</span>numbers<span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true"># 对每个排列进行操作，并计算结果</span>
+results <span class="token operator">=</span> set<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">for</span> perm <span class="token keyword">in</span> permutations<span class="token punctuation">:</span>
+    result <span class="token operator">=</span> sum<span class="token punctuation">(</span><span class="token punctuation">[</span>perm<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">6</span><span class="token operator">**</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token operator">-</span>i<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> range<span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    results<span class="token punctuation">.</span>add<span class="token punctuation">(</span>result<span class="token punctuation">)</span>
+<span class="token keyword">from</span> itertools <span class="token keyword">import</span> product
+operations <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span>
+initial_case <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">]</span>
+initial_operations <span class="token operator">=</span> list<span class="token punctuation">(</span>product<span class="token punctuation">(</span>operations<span class="token punctuation">,</span> repeat<span class="token operator">=</span>len<span class="token punctuation">(</span>initial_case<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true"># 暴力破解得到每种情况移动后的子情况</span>
+<span class="token keyword">def</span> <span class="token function">getdata</span><span class="token punctuation">(</span>initial_case <span class="token punctuation">)</span><span class="token punctuation">:</span>
+    valid_initial_cases <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> ops <span class="token keyword">in</span> initial_operations<span class="token punctuation">:</span>
+        new_numbers <span class="token operator">=</span> <span class="token punctuation">[</span>n <span class="token operator">+</span> op <span class="token keyword">for</span> n<span class="token punctuation">,</span> op <span class="token keyword">in</span> zip<span class="token punctuation">(</span>initial_case<span class="token punctuation">,</span> ops<span class="token punctuation">)</span><span class="token punctuation">]</span>
+        <span class="token keyword">if</span> len<span class="token punctuation">(</span>set<span class="token punctuation">(</span>new_numbers<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">==</span> len<span class="token punctuation">(</span>new_numbers<span class="token punctuation">)</span> <span class="token operator">and</span> all<span class="token punctuation">(</span><span class="token number">1</span> <span class="token operator">&lt;=</span> num <span class="token operator">&lt;=</span> <span class="token number">5</span> <span class="token keyword">for</span> num <span class="token keyword">in</span> new_numbers<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            valid_initial_cases<span class="token punctuation">.</span>append<span class="token punctuation">(</span>new_numbers<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> valid_initial_cases
+table <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token operator">*</span><span class="token number">10000</span>
+<span class="token keyword">for</span> perm <span class="token keyword">in</span> permutations<span class="token punctuation">:</span>
+    table<span class="token punctuation">[</span>sum<span class="token punctuation">(</span><span class="token punctuation">[</span>perm<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">6</span><span class="token operator">**</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token operator">-</span>i<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> range<span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">=</span> getdata<span class="token punctuation">(</span>perm<span class="token punctuation">)</span>
+</code></pre>
+<p>这样在每次移动时只需要通过查表法得到子情况集，不需要再进行迭代求解，节约一定时间。建立查表法生成树结构来描述所有情况，在叶子节点可以求解当前路径的权重矩阵方差，记录最小的权重矩阵的值和移动路径。</p>
+<h2 id="3、运行结果："><a href="#3、运行结果：" class="headerlink" title="3、运行结果："></a>3、运行结果：</h2><p>构建深度为12的树，且每个节点存在8个子节点，尽管使用查表法省去一定的时间，但是庞大的基数仍然时问题无法求解，最后优化下求解出深度为8时的最优路径：</p>
+<p><img src="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/76e2d06a407a2f804d2c0f779d49c3c.png" alt="76e2d06a407a2f804d2c0f779d49c3c"></p>
+<p>耗时3分钟，往后每增加一层，时间增加8倍，<strong>理论求解出12层的时间为8天，于是果断放弃！</strong></p>
+<h2 id="4、程序源码："><a href="#4、程序源码：" class="headerlink" title="4、程序源码："></a>4、程序源码：</h2><pre class=" language-python"><code class="language-python"><span class="token keyword">import</span> itertools
+<span class="token keyword">import</span> pickle
+<span class="token keyword">from</span> copy <span class="token keyword">import</span> deepcopy
+<span class="token keyword">import</span> time
+<span class="token keyword">import</span> numpy <span class="token keyword">as</span> np
+<span class="token keyword">import</span> itertools
+
+numbers <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">]</span>
+<span class="token comment" spellcheck="true"># 列出所有排列</span>
+permutations <span class="token operator">=</span> list<span class="token punctuation">(</span>itertools<span class="token punctuation">.</span>permutations<span class="token punctuation">(</span>numbers<span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true"># 对每个排列进行操作，并计算结果</span>
+results <span class="token operator">=</span> set<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">for</span> perm <span class="token keyword">in</span> permutations<span class="token punctuation">:</span>
+    result <span class="token operator">=</span> sum<span class="token punctuation">(</span><span class="token punctuation">[</span>perm<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">6</span><span class="token operator">**</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token operator">-</span>i<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> range<span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    results<span class="token punctuation">.</span>add<span class="token punctuation">(</span>result<span class="token punctuation">)</span>
+<span class="token keyword">from</span> itertools <span class="token keyword">import</span> product
+operations <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">]</span>
+initial_case <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">5</span><span class="token punctuation">]</span>
+initial_operations <span class="token operator">=</span> list<span class="token punctuation">(</span>product<span class="token punctuation">(</span>operations<span class="token punctuation">,</span> repeat<span class="token operator">=</span>len<span class="token punctuation">(</span>initial_case<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token keyword">def</span> <span class="token function">getdata</span><span class="token punctuation">(</span>initial_case <span class="token punctuation">)</span><span class="token punctuation">:</span>
+    valid_initial_cases <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> ops <span class="token keyword">in</span> initial_operations<span class="token punctuation">:</span>
+        new_numbers <span class="token operator">=</span> <span class="token punctuation">[</span>n <span class="token operator">+</span> op <span class="token keyword">for</span> n<span class="token punctuation">,</span> op <span class="token keyword">in</span> zip<span class="token punctuation">(</span>initial_case<span class="token punctuation">,</span> ops<span class="token punctuation">)</span><span class="token punctuation">]</span>
+        <span class="token keyword">if</span> len<span class="token punctuation">(</span>set<span class="token punctuation">(</span>new_numbers<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">==</span> len<span class="token punctuation">(</span>new_numbers<span class="token punctuation">)</span> <span class="token operator">and</span> all<span class="token punctuation">(</span><span class="token number">1</span> <span class="token operator">&lt;=</span> num <span class="token operator">&lt;=</span> <span class="token number">5</span> <span class="token keyword">for</span> num <span class="token keyword">in</span> new_numbers<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            valid_initial_cases<span class="token punctuation">.</span>append<span class="token punctuation">(</span>new_numbers<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> valid_initial_cases
+table <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token operator">*</span><span class="token number">10000</span>
+<span class="token keyword">for</span> perm <span class="token keyword">in</span> permutations<span class="token punctuation">:</span>
+    table<span class="token punctuation">[</span>sum<span class="token punctuation">(</span><span class="token punctuation">[</span>perm<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">6</span><span class="token operator">**</span><span class="token punctuation">(</span><span class="token number">4</span><span class="token operator">-</span>i<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> range<span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">]</span> <span class="token operator">=</span> getdata<span class="token punctuation">(</span>perm<span class="token punctuation">)</span>
+
+initial_case <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">]</span>
+<span class="token comment" spellcheck="true"># print(table[sum([initial_case[i] * (6**(4-i)) for i in range(5)])])</span>
+<span class="token keyword">with</span> open<span class="token punctuation">(</span><span class="token string">"my_list.pkl"</span><span class="token punctuation">,</span> <span class="token string">"wb"</span><span class="token punctuation">)</span> <span class="token keyword">as</span> file<span class="token punctuation">:</span>
+    pickle<span class="token punctuation">.</span>dump<span class="token punctuation">(</span>table<span class="token punctuation">,</span> file<span class="token punctuation">)</span>
+
+<span class="token keyword">class</span> <span class="token class-name">TreeNode</span><span class="token punctuation">:</span>
+    <span class="token keyword">def</span> <span class="token function">__init__</span><span class="token punctuation">(</span>self<span class="token punctuation">,</span> value<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        self<span class="token punctuation">.</span>value <span class="token operator">=</span> deepcopy<span class="token punctuation">(</span>value<span class="token punctuation">)</span>
+        self<span class="token punctuation">.</span>children <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+<span class="token comment" spellcheck="true"># 创建树</span>
+root <span class="token operator">=</span> TreeNode<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true"># root.value.append(initial_case)</span>
+root<span class="token punctuation">.</span>value <span class="token operator">=</span> <span class="token punctuation">[</span>initial_case<span class="token punctuation">]</span>
+
+<span class="token keyword">def</span> <span class="token function">getNode</span><span class="token punctuation">(</span>initial_case<span class="token punctuation">,</span> Node<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">for</span> numbers <span class="token keyword">in</span> iter<span class="token punctuation">(</span>table<span class="token punctuation">[</span>sum<span class="token punctuation">(</span><span class="token punctuation">[</span>initial_case<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">*</span> <span class="token punctuation">(</span><span class="token number">6</span> <span class="token operator">**</span> <span class="token punctuation">(</span><span class="token number">4</span> <span class="token operator">-</span> i<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token keyword">for</span> i <span class="token keyword">in</span> range<span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        Node<span class="token punctuation">.</span>children<span class="token punctuation">.</span>append<span class="token punctuation">(</span>TreeNode<span class="token punctuation">(</span>numbers<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> Node<span class="token punctuation">.</span>children
+
+start_time <span class="token operator">=</span> time<span class="token punctuation">.</span>time<span class="token punctuation">(</span><span class="token punctuation">)</span>
+dataa <span class="token operator">=</span> np<span class="token punctuation">.</span>load<span class="token punctuation">(</span><span class="token string">'../../../../../../Documents/WeChat Files/wxid_fm5zrvq5j2an22/FileStorage/File/2024-01/value.npy'</span><span class="token punctuation">)</span>
+minfangcha <span class="token operator">=</span> <span class="token number">100000000</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>dataa<span class="token punctuation">.</span>shape<span class="token punctuation">)</span>
+save_result <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+
+<span class="token comment" spellcheck="true"># for nums in root.value:</span>
+Tree <span class="token operator">=</span> getNode<span class="token punctuation">(</span>root<span class="token punctuation">.</span>value<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span> root<span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true">#----------------第二维度</span>
+<span class="token keyword">for</span> children1 <span class="token keyword">in</span> Tree<span class="token punctuation">:</span>
+    Tree1 <span class="token operator">=</span> getNode<span class="token punctuation">(</span>children1<span class="token punctuation">.</span>value<span class="token punctuation">,</span> children1<span class="token punctuation">)</span>
+    <span class="token comment" spellcheck="true">#----------------第三维度</span>
+    <span class="token keyword">for</span> children2 <span class="token keyword">in</span> Tree1<span class="token punctuation">:</span>
+        Tree2 <span class="token operator">=</span> getNode<span class="token punctuation">(</span>children2<span class="token punctuation">.</span>value<span class="token punctuation">,</span> children2<span class="token punctuation">)</span>
+        <span class="token comment" spellcheck="true">#----------------第四维度</span>
+        <span class="token keyword">for</span> children3 <span class="token keyword">in</span> Tree2<span class="token punctuation">:</span>
+            Tree3 <span class="token operator">=</span> getNode<span class="token punctuation">(</span>children3<span class="token punctuation">.</span>value<span class="token punctuation">,</span> children3<span class="token punctuation">)</span>
+            <span class="token comment" spellcheck="true">#----------------第五维度</span>
+            <span class="token keyword">for</span> children4 <span class="token keyword">in</span> Tree3<span class="token punctuation">:</span>
+                Tree4 <span class="token operator">=</span> getNode<span class="token punctuation">(</span>children4<span class="token punctuation">.</span>value<span class="token punctuation">,</span> children4<span class="token punctuation">)</span>
+                <span class="token comment" spellcheck="true">#----------------第六维度</span>
+                <span class="token keyword">for</span> children5 <span class="token keyword">in</span> Tree4<span class="token punctuation">:</span>
+                    Tree5 <span class="token operator">=</span> getNode<span class="token punctuation">(</span>children5<span class="token punctuation">.</span>value<span class="token punctuation">,</span> children5<span class="token punctuation">)</span>
+                    <span class="token comment" spellcheck="true">#----------------第七维度</span>
+                    <span class="token keyword">for</span> children6 <span class="token keyword">in</span> Tree5<span class="token punctuation">:</span>
+                        Tree6 <span class="token operator">=</span> getNode<span class="token punctuation">(</span>children6<span class="token punctuation">.</span>value<span class="token punctuation">,</span> children6<span class="token punctuation">)</span>
+                        <span class="token keyword">for</span> children7 <span class="token keyword">in</span> Tree6<span class="token punctuation">:</span>
+                            result <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+
+                            indices <span class="token operator">=</span> <span class="token punctuation">[</span>root<span class="token punctuation">.</span>value<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>index<span class="token punctuation">(</span>num<span class="token punctuation">)</span> <span class="token keyword">for</span> num <span class="token keyword">in</span> range<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+                            result<span class="token punctuation">.</span>append<span class="token punctuation">(</span>indices<span class="token punctuation">)</span>
+                            indices <span class="token operator">=</span> <span class="token punctuation">[</span>children1<span class="token punctuation">.</span>value<span class="token punctuation">.</span>index<span class="token punctuation">(</span>num<span class="token punctuation">)</span> <span class="token keyword">for</span> num <span class="token keyword">in</span> range<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+                            result<span class="token punctuation">.</span>append<span class="token punctuation">(</span>indices<span class="token punctuation">)</span>
+                            indices <span class="token operator">=</span> <span class="token punctuation">[</span>children2<span class="token punctuation">.</span>value<span class="token punctuation">.</span>index<span class="token punctuation">(</span>num<span class="token punctuation">)</span> <span class="token keyword">for</span> num <span class="token keyword">in</span> range<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+                            result<span class="token punctuation">.</span>append<span class="token punctuation">(</span>indices<span class="token punctuation">)</span>
+                            indices <span class="token operator">=</span> <span class="token punctuation">[</span>children3<span class="token punctuation">.</span>value<span class="token punctuation">.</span>index<span class="token punctuation">(</span>num<span class="token punctuation">)</span> <span class="token keyword">for</span> num <span class="token keyword">in</span> range<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+                            result<span class="token punctuation">.</span>append<span class="token punctuation">(</span>indices<span class="token punctuation">)</span>
+                            indices <span class="token operator">=</span> <span class="token punctuation">[</span>children4<span class="token punctuation">.</span>value<span class="token punctuation">.</span>index<span class="token punctuation">(</span>num<span class="token punctuation">)</span> <span class="token keyword">for</span> num <span class="token keyword">in</span> range<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+                            result<span class="token punctuation">.</span>append<span class="token punctuation">(</span>indices<span class="token punctuation">)</span>
+                            indices <span class="token operator">=</span> <span class="token punctuation">[</span>children5<span class="token punctuation">.</span>value<span class="token punctuation">.</span>index<span class="token punctuation">(</span>num<span class="token punctuation">)</span> <span class="token keyword">for</span> num <span class="token keyword">in</span> range<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+                            result<span class="token punctuation">.</span>append<span class="token punctuation">(</span>indices<span class="token punctuation">)</span>
+                            indices <span class="token operator">=</span> <span class="token punctuation">[</span>children6<span class="token punctuation">.</span>value<span class="token punctuation">.</span>index<span class="token punctuation">(</span>num<span class="token punctuation">)</span> <span class="token keyword">for</span> num <span class="token keyword">in</span> range<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+                            result<span class="token punctuation">.</span>append<span class="token punctuation">(</span>indices<span class="token punctuation">)</span>
+                            indices <span class="token operator">=</span> <span class="token punctuation">[</span>children7<span class="token punctuation">.</span>value<span class="token punctuation">.</span>index<span class="token punctuation">(</span>num<span class="token punctuation">)</span> <span class="token keyword">for</span> num <span class="token keyword">in</span> range<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">6</span><span class="token punctuation">)</span><span class="token punctuation">]</span>
+                            result<span class="token punctuation">.</span>append<span class="token punctuation">(</span>indices<span class="token punctuation">)</span>
+                            result <span class="token operator">=</span> list<span class="token punctuation">(</span>map<span class="token punctuation">(</span>list<span class="token punctuation">,</span> zip<span class="token punctuation">(</span><span class="token operator">*</span>result<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+                            bianliang1 <span class="token operator">=</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">+</span> \
+                                        dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">]</span> <span class="token operator">+</span> \
+                                        dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">6</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">6</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">7</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">7</span><span class="token punctuation">]</span>
+                            bianliang2 <span class="token operator">=</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">+</span> \
+                                        dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">]</span> <span class="token operator">+</span> \
+                                        dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">6</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">6</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">7</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">7</span><span class="token punctuation">]</span>
+                            bianliang3 <span class="token operator">=</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">+</span> \
+                                        dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">]</span> <span class="token operator">+</span> \
+                                        dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">6</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">6</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">7</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">7</span><span class="token punctuation">]</span>
+                            bianliang4 <span class="token operator">=</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">+</span> \
+                                        dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">]</span> <span class="token operator">+</span> \
+                                        dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">6</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">6</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">7</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">7</span><span class="token punctuation">]</span>
+                            bianliang5 <span class="token operator">=</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">+</span> \
+                                        dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">]</span> <span class="token operator">+</span> \
+                                        dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">6</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">6</span><span class="token punctuation">]</span> <span class="token operator">+</span> dataa<span class="token punctuation">[</span>result<span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">7</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token number">7</span><span class="token punctuation">]</span>
+                            bianliang <span class="token operator">=</span> <span class="token punctuation">(</span>bianliang1 <span class="token operator">+</span> bianliang2 <span class="token operator">+</span> bianliang3 <span class="token operator">+</span> bianliang4 <span class="token operator">+</span> bianliang5<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">5</span>
+                            fangcha <span class="token operator">=</span> np<span class="token punctuation">.</span>sum<span class="token punctuation">(</span><span class="token punctuation">(</span>bianliang <span class="token operator">-</span> bianliang1<span class="token punctuation">)</span><span class="token operator">**</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">+</span> np<span class="token punctuation">.</span>sum<span class="token punctuation">(</span><span class="token punctuation">(</span>bianliang <span class="token operator">-</span> bianliang2<span class="token punctuation">)</span><span class="token operator">**</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">+</span> \
+                                      np<span class="token punctuation">.</span>sum<span class="token punctuation">(</span><span class="token punctuation">(</span>bianliang <span class="token operator">-</span> bianliang3<span class="token punctuation">)</span><span class="token operator">**</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">+</span> np<span class="token punctuation">.</span>sum<span class="token punctuation">(</span><span class="token punctuation">(</span>bianliang <span class="token operator">-</span> bianliang4<span class="token punctuation">)</span><span class="token operator">**</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">+</span> \
+                                      np<span class="token punctuation">.</span>sum<span class="token punctuation">(</span><span class="token punctuation">(</span>bianliang <span class="token operator">-</span> bianliang5<span class="token punctuation">)</span><span class="token operator">**</span><span class="token number">2</span><span class="token punctuation">)</span>
+                            <span class="token keyword">if</span> fangcha <span class="token operator">&lt;</span> minfangcha<span class="token punctuation">:</span>
+                                minfangcha <span class="token operator">=</span> fangcha
+                                save_result <span class="token operator">=</span> result
+
+<span class="token comment" spellcheck="true"># 记录结束时间</span>
+end_time <span class="token operator">=</span> time<span class="token punctuation">.</span>time<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true"># 计算执行时间</span>
+execution_time <span class="token operator">=</span> end_time <span class="token operator">-</span> start_time
+<span class="token comment" spellcheck="true"># 打印执行时间</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>f<span class="token string">"程序执行时间: {execution_time} 秒"</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>minfangcha<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>save_result<span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true"># for nums in root.children:</span>
+<span class="token comment" spellcheck="true">#     print(nums.value)</span>
+</code></pre>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://actorjing.github.io/2024/01/16/%E8%99%AB%E5%AD%90%E7%A7%BB%E5%8A%A8%E9%97%AE%E9%A2%98/" title="虫子移动问题" target="_blank" rel="external">https://actorjing.github.io/2024/01/16/虫子移动问题/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/ActorJing" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/actor.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/ActorJing" target="_blank"><span class="text-dark">我超爱大海的</span><small class="ml-1x">long time no see</small></a></h3>
+        <div>个人简介。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2024/01/18/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F4-tslib%E5%BA%93%E5%87%BD%E6%95%B0/" title="Linux嵌入式4-tslib库函数"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2024/01/14/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F3-%E8%BE%93%E5%85%A5%E8%AE%BE%E5%A4%87/" title="Linux嵌入式3-输入设备"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">    <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!-- <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+    <div class="copyright">
+    	
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer> -->
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'tYxMN2OZzN0cW9hwBDlP5EEV-gzGzoHsz',
+    appKey: '2KwEcCdsaVhXls99AiMISWuZ',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+
+<script src="false"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":300,"height":600},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>

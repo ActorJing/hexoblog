@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Linux嵌入式5-FrameBuffer应用编程 | 我超爱大海的</title>
+  <meta name="description" content="FrameBuffer应用编程1、内存映射用户程序操作文件的一般方式为调用系统库函数（open，read，write），库函数的流程为拷贝用户数据空间，到内核空间，获取文件句柄，返回用户空间，操作文件时，使用句柄到内核空间找到文件进行修改，每一次操作都是如此。用户空间和内核空间的机制导致数据传输速度不能最大，于是采用内存映射的方式。 用户程序可以直接访问内存，内存映射是在内存中申请空间对应物理文件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux嵌入式5-FrameBuffer应用编程">
+<meta property="og:url" content="https://actorjing.github.io/2024/01/31/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F5-FrameBuffer%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B/index.html">
+<meta property="og:site_name" content="我超爱大海的">
+<meta property="og:description" content="FrameBuffer应用编程1、内存映射用户程序操作文件的一般方式为调用系统库函数（open，read，write），库函数的流程为拷贝用户数据空间，到内核空间，获取文件句柄，返回用户空间，操作文件时，使用句柄到内核空间找到文件进行修改，每一次操作都是如此。用户空间和内核空间的机制导致数据传输速度不能最大，于是采用内存映射的方式。 用户程序可以直接访问内存，内存映射是在内存中申请空间对应物理文件">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/8118a23003076a7df800a48e2338f7d.jpg">
+<meta property="article:published_time" content="2024-01-31T03:49:08.000Z">
+<meta property="article:modified_time" content="2024-07-05T16:06:08.231Z">
+<meta property="article:author" content="Jing Wu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/8118a23003076a7df800a48e2338f7d.jpg">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://actorjing.github.io/2024/01/31/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F5-FrameBuffer%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="我超爱大海的" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/title_logo.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/ActorJing" target="_blank">
+          <img class="img-circle img-rotate" src="/images/actor.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">我超爱大海的</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">long time no see</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Hefei, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-books">
+          <a href="/book">
+            
+            <i class="icon icon-book-fill"></i>
+            
+            <span class="menu-title">书单</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/FOC%E5%AD%A6%E4%B9%A0/">FOC学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%A6%E4%B9%A0/">Linux嵌入式学习</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97/">工作日志</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%91%84%E5%BD%B1%E6%97%A5%E8%AE%B0/">摄影日记</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/07/">七月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">二月 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/01/">一月 2024</a><span class="archive-list-count">11</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97/">工作日志</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/07/05/%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97/" class="title">工作日志</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-07-05T13:57:10.000Z" itemprop="datePublished">2024-07-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%91%84%E5%BD%B1%E6%97%A5%E8%AE%B0/">摄影日记</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/02/15/2024-2-15%E4%B8%9C%E8%87%B3%E5%8E%BF%E5%9F%8E/" class="title">2024-2-15东至县城</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-02-15T02:41:49.000Z" itemprop="datePublished">2024-02-15</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%A6%E4%B9%A0/">Linux嵌入式学习</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/02/06/%E5%B5%8C%E5%85%A5%E5%BC%8FLinux6-UART%E4%B8%B2%E5%8F%A3/" class="title">嵌入式Linux6-UART串口</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-02-06T15:09:33.000Z" itemprop="datePublished">2024-02-06</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%A6%E4%B9%A0/">Linux嵌入式学习</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/01/31/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F5-FrameBuffer%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B/" class="title">Linux嵌入式5-FrameBuffer应用编程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-01-31T03:49:08.000Z" itemprop="datePublished">2024-01-31</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%91%84%E5%BD%B1%E6%97%A5%E8%AE%B0/">摄影日记</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/01/29/2024-1-25%E7%BA%A2%E6%98%9F%E8%B7%AF%E4%BA%92%E5%8B%89/" class="title">2024-1-25红星路互勉</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-01-29T07:21:49.000Z" itemprop="datePublished">2024-01-29</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#FrameBuffer%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B"><span class="toc-number">1.</span> <span class="toc-text">FrameBuffer应用编程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84"><span class="toc-number">1.1.</span> <span class="toc-text">1、内存映射</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81LCD%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B%E6%B5%81%E7%A8%8B"><span class="toc-number">1.2.</span> <span class="toc-text">2、LCD应用编程流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E5%B1%9E%E6%80%A7%E7%BB%93%E6%9E%84%E4%BD%93%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.3.</span> <span class="toc-text">3、属性结构体介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E5%AD%98%E5%82%A8%E6%98%A0%E5%B0%84"><span class="toc-number">1.4.</span> <span class="toc-text">4、存储映射</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E3%80%81%E6%98%BE%E7%A4%BA%E6%95%88%E6%9E%9C"><span class="toc-number">1.5.</span> <span class="toc-text">5、显示效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6%E3%80%81%E7%A8%8B%E5%BA%8F%E6%BA%90%E7%A0%81"><span class="toc-number">1.6.</span> <span class="toc-text">6、程序源码</span></a></li></ol></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Linux嵌入式5-FrameBuffer应用编程" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Linux嵌入式5-FrameBuffer应用编程
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2024/01/31/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F5-FrameBuffer%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B/" class="article-date">
+	  <time datetime="2024-01-31T03:49:08.000Z" itemprop="datePublished">2024-01-31</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%A6%E4%B9%A0/">Linux嵌入式学习</a>
+  </span>
+
+        
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2024/01/31/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F5-FrameBuffer%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h1 id="FrameBuffer应用编程"><a href="#FrameBuffer应用编程" class="headerlink" title="FrameBuffer应用编程"></a>FrameBuffer应用编程</h1><h2 id="1、内存映射"><a href="#1、内存映射" class="headerlink" title="1、内存映射"></a>1、内存映射</h2><p>用户程序操作文件的一般方式为调用系统库函数（open，read，write），库函数的流程为拷贝用户数据空间，到内核空间，获取文件句柄，返回用户空间，操作文件时，使用句柄到内核空间找到文件进行修改，每一次操作都是如此。用户空间和内核空间的机制导致数据传输速度不能最大，于是采用<strong>内存映射</strong>的方式。</p>
+<p>用户程序可以直接访问内存，内存映射是在内存中申请空间对应物理文件，修改内存的数据会自动同步到物理文件，注意这个同步不是及时的，仍由内核调用，使用open这种库函数也不是及时同步，都是由内核调用同步，内存映射返回的是一个指针，可以直接访问和修改内容。</p>
+<h2 id="2、LCD应用编程流程"><a href="#2、LCD应用编程流程" class="headerlink" title="2、LCD应用编程流程"></a>2、LCD应用编程流程</h2><ul>
+<li>打开&#x2F;dev&#x2F;fdX设备文件</li>
+<li>使用ioctl函数读取LCD参数信息</li>
+<li>使用存储映射的方式将屏幕显示缓冲区映射到用户空间</li>
+<li>直接读写显示缓冲区进行绘图和显示</li>
+<li>完成显示后关闭存储映射，关闭设备文件</li>
+</ul>
+<h2 id="3、属性结构体介绍"><a href="#3、属性结构体介绍" class="headerlink" title="3、属性结构体介绍"></a>3、属性结构体介绍</h2><pre class=" language-c"><code class="language-c"><span class="token comment" spellcheck="true">//显示设备的可变参数参数-一般表示显示屏显示大小，不变参数一般指硬件属性，比如缓冲区宽度</span>
+<span class="token keyword">struct</span> fb_var_screeninfo <span class="token punctuation">{</span>
+    __u32 xres<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* visible resolution		*/</span>
+    __u32 yres<span class="token punctuation">;</span>
+    __u32 xres_virtual<span class="token punctuation">;</span>		<span class="token comment" spellcheck="true">/* virtual resolution		*/</span>
+    __u32 yres_virtual<span class="token punctuation">;</span>
+    __u32 xoffset<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* offset from virtual to visible */</span>
+    __u32 yoffset<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* resolution			*/</span>
+
+    __u32 bits_per_pixel<span class="token punctuation">;</span>		<span class="token comment" spellcheck="true">/* guess what			*/</span>
+    __u32 grayscale<span class="token punctuation">;</span>		<span class="token comment" spellcheck="true">/* 0 = color, 1 = grayscale,	*/</span>
+                    <span class="token comment" spellcheck="true">/* >1 = FOURCC			*/</span>
+    <span class="token keyword">struct</span> fb_bitfield red<span class="token punctuation">;</span>		<span class="token comment" spellcheck="true">/* bitfield in fb mem if true color, */</span>
+    <span class="token keyword">struct</span> fb_bitfield green<span class="token punctuation">;</span>	<span class="token comment" spellcheck="true">/* else only length is significant */</span>
+    <span class="token keyword">struct</span> fb_bitfield blue<span class="token punctuation">;</span>
+    <span class="token keyword">struct</span> fb_bitfield transp<span class="token punctuation">;</span>	<span class="token comment" spellcheck="true">/* transparency			*/</span>	
+
+    __u32 nonstd<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* != 0 Non standard pixel format */</span>
+
+    __u32 activate<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* see FB_ACTIVATE_*		*/</span>
+
+    __u32 height<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* height of picture in mm    */</span>
+    __u32 width<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* width of picture in mm     */</span>
+
+    __u32 accel_flags<span class="token punctuation">;</span>		<span class="token comment" spellcheck="true">/* (OBSOLETE) see fb_info.flags */</span>
+
+    <span class="token comment" spellcheck="true">/* Timing: All values in pixclocks, except pixclock (of course) */</span>
+    __u32 pixclock<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* pixel clock in ps (pico seconds) */</span>
+    __u32 left_margin<span class="token punctuation">;</span>		<span class="token comment" spellcheck="true">/* time from sync to picture	*/</span>
+    __u32 right_margin<span class="token punctuation">;</span>		<span class="token comment" spellcheck="true">/* time from picture to sync	*/</span>
+    __u32 upper_margin<span class="token punctuation">;</span>		<span class="token comment" spellcheck="true">/* time from sync to picture	*/</span>
+    __u32 lower_margin<span class="token punctuation">;</span>
+    __u32 hsync_len<span class="token punctuation">;</span>		<span class="token comment" spellcheck="true">/* length of horizontal sync	*/</span>
+    __u32 vsync_len<span class="token punctuation">;</span>		<span class="token comment" spellcheck="true">/* length of vertical sync	*/</span>
+    __u32 sync<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* see FB_SYNC_*		*/</span>
+    __u32 vmode<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* see FB_VMODE_*		*/</span>
+    __u32 rotate<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* angle we rotate counter clockwise */</span>
+    __u32 colorspace<span class="token punctuation">;</span>		<span class="token comment" spellcheck="true">/* colorspace for FOURCC-based modes */</span>
+    __u32 reserved<span class="token punctuation">[</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">;</span>		<span class="token comment" spellcheck="true">/* Reserved for future compatibility */</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">//显示设备的固定参数</span>
+<span class="token keyword">struct</span> fb_fix_screeninfo <span class="token punctuation">{</span>
+    <span class="token keyword">char</span> id<span class="token punctuation">[</span><span class="token number">16</span><span class="token punctuation">]</span><span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* identification string eg "TT Builtin" */</span>
+    <span class="token keyword">unsigned</span> <span class="token keyword">long</span> smem_start<span class="token punctuation">;</span>	<span class="token comment" spellcheck="true">/* Start of frame buffer mem */</span>
+                    <span class="token comment" spellcheck="true">/* (physical address) */</span>
+    __u32 smem_len<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* Length of frame buffer mem */</span>
+    __u32 type<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* see FB_TYPE_*		*/</span>
+    __u32 type_aux<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* Interleave for interleaved Planes */</span>
+    __u32 visual<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* see FB_VISUAL_*		*/</span> 
+    __u16 xpanstep<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* zero if no hardware panning  */</span>
+    __u16 ypanstep<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* zero if no hardware panning  */</span>
+    __u16 ywrapstep<span class="token punctuation">;</span>		<span class="token comment" spellcheck="true">/* zero if no hardware ywrap    */</span>
+    __u32 line_length<span class="token punctuation">;</span>		<span class="token comment" spellcheck="true">/* length of a line in bytes    */</span>
+    <span class="token keyword">unsigned</span> <span class="token keyword">long</span> mmio_start<span class="token punctuation">;</span>	<span class="token comment" spellcheck="true">/* Start of Memory Mapped I/O   */</span>
+                    <span class="token comment" spellcheck="true">/* (physical address) */</span>
+    __u32 mmio_len<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* Length of Memory Mapped I/O  */</span>
+    __u32 accel<span class="token punctuation">;</span>			<span class="token comment" spellcheck="true">/* Indicate to driver which	*/</span>
+                    <span class="token comment" spellcheck="true">/*  specific chip/card we have	*/</span>
+    __u16 capabilities<span class="token punctuation">;</span>		<span class="token comment" spellcheck="true">/* see FB_CAP_*			*/</span>
+    __u16 reserved<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">;</span>		<span class="token comment" spellcheck="true">/* Reserved for future compatibility */</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">//读取参数结构体</span>
+<span class="token function">ioctl</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> FBIOGET_VSCREENINFO<span class="token punctuation">,</span> <span class="token operator">&amp;</span>fb_var<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">ioctl</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> FBIOGET_FSCREENINFO<span class="token punctuation">,</span> <span class="token operator">&amp;</span>fb_fix<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h2 id="4、存储映射"><a href="#4、存储映射" class="headerlink" title="4、存储映射"></a>4、存储映射</h2><pre class=" language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/mman.h></span></span>
+<span class="token keyword">void</span> <span class="token operator">*</span><span class="token function">mmap</span> <span class="token punctuation">(</span><span class="token keyword">void</span> <span class="token operator">*</span>__addr<span class="token punctuation">,</span> size_t __len<span class="token punctuation">,</span> <span class="token keyword">int</span> __prot<span class="token punctuation">,</span>
+           <span class="token keyword">int</span> __flags<span class="token punctuation">,</span> <span class="token keyword">int</span> __fd<span class="token punctuation">,</span> __off_t __offset<span class="token punctuation">)</span> __THROW<span class="token punctuation">;</span><span class="token punctuation">)</span>
+<span class="token comment" spellcheck="true">//地址自动分配，传入NULL，在存储映射中遇到一个问题，显示屏的line_length和显示宽度width不一样，显示屏line_length由硬件缓冲区大小决定，申请内存时，空间大小应该为line_length*height，而不是width*height</span>
+screen_base <span class="token operator">=</span> <span class="token function">mmap</span><span class="token punctuation">(</span><span class="token constant">NULL</span><span class="token punctuation">,</span> screen_size<span class="token punctuation">,</span> PROT_WRITE<span class="token punctuation">,</span> MAP_SHARED<span class="token punctuation">,</span> fd<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">//关闭存储映射</span>
+<span class="token function">munmap</span><span class="token punctuation">(</span>screen_base<span class="token punctuation">,</span> screen_size<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<h2 id="5、显示效果"><a href="#5、显示效果" class="headerlink" title="5、显示效果"></a>5、显示效果</h2><pre class=" language-c"><code class="language-c"><span class="token comment" spellcheck="true">//颜色标准转换</span>
+<span class="token macro property">#<span class="token directive keyword">define</span> argb8888_to_rgb565(color) ({ \
+    unsigned int temp = (color);\
+    ((temp &amp; 0xF80000UL) >> 8) | \
+    ((temp &amp; 0xFC00UL) >> 5) | \
+    ((temp &amp; 0xF8UL) >> 3); \
+})</span>
+</code></pre>
+<p><img src="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/8118a23003076a7df800a48e2338f7d.jpg" alt="8118a23003076a7df800a48e2338f7d"></p>
+<h2 id="6、程序源码"><a href="#6、程序源码" class="headerlink" title="6、程序源码"></a>6、程序源码</h2><pre class=" language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/types.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/stat.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;fcntl.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;string.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;poll.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;linux/input.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/mman.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;linux/fb.h></span></span>
+
+<span class="token macro property">#<span class="token directive keyword">define</span> argb8888_to_rgb565(color) ({ \
+    unsigned int temp = (color);\
+    ((temp &amp; 0xF80000UL) >> 8) | \
+    ((temp &amp; 0xFC00UL) >> 5) | \
+    ((temp &amp; 0xF8UL) >> 3); \
+})</span>
+
+<span class="token keyword">static</span> <span class="token keyword">int</span> width<span class="token punctuation">;</span>
+<span class="token keyword">static</span> <span class="token keyword">int</span> height<span class="token punctuation">;</span>
+<span class="token keyword">static</span> <span class="token keyword">unsigned</span> <span class="token keyword">short</span> <span class="token operator">*</span>screen_base <span class="token operator">=</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">// 打点</span>
+<span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">lcd_draw_point</span><span class="token punctuation">(</span><span class="token keyword">unsigned</span> <span class="token keyword">int</span> x<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> y<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> color<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">unsigned</span> <span class="token keyword">short</span> rgb565_color <span class="token operator">=</span> <span class="token function">argb8888_to_rgb565</span><span class="token punctuation">(</span>color<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>x<span class="token operator">>=</span>width<span class="token punctuation">)</span>
+        x <span class="token operator">=</span> width<span class="token number">-1</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>y<span class="token operator">>=</span>height<span class="token punctuation">)</span>
+        y <span class="token operator">=</span> height<span class="token number">-1</span><span class="token punctuation">;</span>
+    screen_base<span class="token punctuation">[</span>y<span class="token operator">*</span>width <span class="token operator">+</span>x<span class="token punctuation">]</span> <span class="token operator">=</span> rgb565_color<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">// 画线</span>
+<span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">lcd_draw_line</span><span class="token punctuation">(</span><span class="token keyword">unsigned</span> <span class="token keyword">int</span> x<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> y<span class="token punctuation">,</span> <span class="token keyword">int</span> dir<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> length<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> color<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">unsigned</span> <span class="token keyword">short</span> rgb565_color <span class="token operator">=</span> <span class="token function">argb8888_to_rgb565</span><span class="token punctuation">(</span>color<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">unsigned</span> <span class="token keyword">int</span> end<span class="token punctuation">;</span>
+    <span class="token keyword">unsigned</span> <span class="token keyword">long</span> temp<span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>x<span class="token operator">>=</span>width<span class="token punctuation">)</span>
+        x <span class="token operator">=</span> width<span class="token number">-1</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span>y<span class="token operator">>=</span>height<span class="token punctuation">)</span>
+        y <span class="token operator">=</span> height<span class="token number">-1</span><span class="token punctuation">;</span>
+
+    temp <span class="token operator">=</span> y<span class="token operator">*</span>width <span class="token operator">+</span>x<span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>dir<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        end <span class="token operator">=</span> x <span class="token operator">+</span> length <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>end<span class="token operator">>=</span>width<span class="token punctuation">)</span>
+            end <span class="token operator">=</span> width<span class="token number">-1</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token punctuation">;</span> x<span class="token operator">&lt;=</span>end<span class="token punctuation">;</span> x<span class="token operator">++</span><span class="token punctuation">,</span> temp<span class="token operator">++</span><span class="token punctuation">)</span>
+            screen_base<span class="token punctuation">[</span>temp<span class="token punctuation">]</span> <span class="token operator">=</span> rgb565_color<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">else</span><span class="token punctuation">{</span>
+        end <span class="token operator">=</span> y <span class="token operator">+</span> length <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span>end<span class="token operator">>=</span>height<span class="token punctuation">)</span>
+            end <span class="token operator">=</span> height<span class="token number">-1</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token punctuation">;</span> y<span class="token operator">&lt;</span>end<span class="token punctuation">;</span> y<span class="token operator">++</span><span class="token punctuation">,</span> temp<span class="token operator">+</span><span class="token operator">=</span>width<span class="token punctuation">)</span>
+            screen_base<span class="token punctuation">[</span>temp<span class="token punctuation">]</span> <span class="token operator">=</span> rgb565_color<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">// 画矩形</span>
+<span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">lcd_draw_rectangle</span><span class="token punctuation">(</span><span class="token keyword">unsigned</span> <span class="token keyword">int</span> start_x<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> end_x<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> start_y<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> end_y<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> color<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">unsigned</span> <span class="token keyword">short</span> rgb565_color <span class="token operator">=</span> <span class="token function">argb8888_to_rgb565</span><span class="token punctuation">(</span>color<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span> x_len <span class="token operator">=</span> end_x <span class="token operator">-</span> start_x <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span> y_len <span class="token operator">=</span> end_y <span class="token operator">-</span> start_y <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+
+    <span class="token function">lcd_draw_line</span><span class="token punctuation">(</span>start_x<span class="token punctuation">,</span> start_y<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> x_len<span class="token punctuation">,</span> color<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">lcd_draw_line</span><span class="token punctuation">(</span>start_x<span class="token punctuation">,</span> end_y<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> x_len<span class="token punctuation">,</span> color<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">lcd_draw_line</span><span class="token punctuation">(</span>start_x<span class="token punctuation">,</span> start_y<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> y_len<span class="token punctuation">,</span> color<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">lcd_draw_line</span><span class="token punctuation">(</span>end_x<span class="token punctuation">,</span> start_y<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> y_len<span class="token punctuation">,</span> color<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">//区域填充</span>
+<span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">lcd_fill</span><span class="token punctuation">(</span><span class="token keyword">unsigned</span> <span class="token keyword">int</span> start_x<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> end_x<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> start_y<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> end_y<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">int</span> color<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">unsigned</span> <span class="token keyword">short</span> rgb565_color <span class="token operator">=</span> <span class="token function">argb8888_to_rgb565</span><span class="token punctuation">(</span>color<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span> x_len <span class="token operator">=</span> end_x <span class="token operator">-</span> start_x <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token punctuation">;</span> start_y<span class="token operator">&lt;=</span>end_y<span class="token punctuation">;</span> start_y<span class="token operator">++</span><span class="token punctuation">)</span>
+        <span class="token function">lcd_draw_line</span><span class="token punctuation">(</span>start_x<span class="token punctuation">,</span> start_y<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> x_len<span class="token punctuation">,</span> color<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>argv<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+
+    <span class="token keyword">struct</span> fb_fix_screeninfo fix_info<span class="token punctuation">;</span>
+    <span class="token keyword">struct</span> fb_var_screeninfo var_info<span class="token punctuation">;</span>
+    <span class="token keyword">unsigned</span> <span class="token keyword">int</span> screen_size<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> fd<span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">2</span> <span class="token operator">!=</span> argc<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span><span class="token string">"usage:%s &lt;event>\n"</span><span class="token punctuation">,</span> argv<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">></span> <span class="token punctuation">(</span>fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span>O_RDWR<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"open error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">></span> <span class="token function">ioctl</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> FBIOGET_VSCREENINFO<span class="token punctuation">,</span> <span class="token operator">&amp;</span>var_info<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"ioctl error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> 
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">></span> <span class="token function">ioctl</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> FBIOGET_FSCREENINFO<span class="token punctuation">,</span> <span class="token operator">&amp;</span>fix_info<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"ioctl error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    screen_size <span class="token operator">=</span> fix_info<span class="token punctuation">.</span>line_length <span class="token operator">*</span> var_info<span class="token punctuation">.</span>yres<span class="token punctuation">;</span>
+    width <span class="token operator">=</span> var_info<span class="token punctuation">.</span>xres<span class="token punctuation">;</span>
+    height <span class="token operator">=</span> var_info<span class="token punctuation">.</span>yres<span class="token punctuation">;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"frame config x:%d, y:%d\n"</span><span class="token punctuation">,</span> var_info<span class="token punctuation">.</span>xres<span class="token punctuation">,</span> var_info<span class="token punctuation">.</span>yres<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"frame config size:%d\n"</span><span class="token punctuation">,</span> fix_info<span class="token punctuation">.</span>line_length<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    screen_base <span class="token operator">=</span> <span class="token function">mmap</span><span class="token punctuation">(</span><span class="token constant">NULL</span><span class="token punctuation">,</span> screen_size<span class="token punctuation">,</span> PROT_WRITE<span class="token punctuation">,</span> MAP_SHARED<span class="token punctuation">,</span> fd<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span><span class="token punctuation">(</span>MAP_FAILED <span class="token operator">==</span> <span class="token punctuation">(</span><span class="token keyword">void</span> <span class="token operator">*</span><span class="token punctuation">)</span>screen_base<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"mmap error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment" spellcheck="true">/* 画正方形方块 */</span>
+    <span class="token keyword">int</span> w <span class="token operator">=</span> height <span class="token operator">*</span> <span class="token number">0.25</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//方块的宽度为 1/4 屏幕高度</span>
+    <span class="token function">lcd_fill</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> width<span class="token number">-1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> height<span class="token number">-1</span><span class="token punctuation">,</span> <span class="token number">0x0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">//清屏（屏幕显示黑色）</span>
+    <span class="token function">lcd_fill</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> w<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> w<span class="token punctuation">,</span> <span class="token number">0xFF0000</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">//红色方块</span>
+    <span class="token function">lcd_fill</span><span class="token punctuation">(</span>width<span class="token operator">-</span>w<span class="token punctuation">,</span> width<span class="token number">-1</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> w<span class="token punctuation">,</span> <span class="token number">0xFF00</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">//绿色方块</span>
+    <span class="token function">lcd_fill</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> w<span class="token punctuation">,</span> height<span class="token operator">-</span>w<span class="token punctuation">,</span> height<span class="token number">-1</span><span class="token punctuation">,</span> <span class="token number">0xFF</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">//蓝色方块</span>
+    <span class="token function">lcd_fill</span><span class="token punctuation">(</span>width<span class="token operator">-</span>w<span class="token punctuation">,</span> width<span class="token number">-1</span><span class="token punctuation">,</span> height<span class="token operator">-</span>w<span class="token punctuation">,</span> height<span class="token number">-1</span><span class="token punctuation">,</span> <span class="token number">0xFFFF00</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//黄色方块</span>
+    <span class="token comment" spellcheck="true">/* 画线: 十字交叉线 */</span>
+    <span class="token function">lcd_draw_line</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> height <span class="token operator">*</span> <span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> width<span class="token punctuation">,</span> <span class="token number">0xFFFFFF</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//白色线</span>
+    <span class="token function">lcd_draw_line</span><span class="token punctuation">(</span>width <span class="token operator">*</span> <span class="token number">0.5</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> height<span class="token punctuation">,</span> <span class="token number">0xFFFFFF</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//白色线</span>
+    <span class="token comment" spellcheck="true">/* 画矩形 */</span>
+    <span class="token keyword">unsigned</span> <span class="token keyword">int</span> s_x<span class="token punctuation">,</span> s_y<span class="token punctuation">,</span> e_x<span class="token punctuation">,</span> e_y<span class="token punctuation">;</span>
+    s_x <span class="token operator">=</span> <span class="token number">0.25</span> <span class="token operator">*</span> width<span class="token punctuation">;</span>
+    s_y <span class="token operator">=</span> w<span class="token punctuation">;</span>
+    e_x <span class="token operator">=</span> width <span class="token operator">-</span> s_x<span class="token punctuation">;</span>
+    e_y <span class="token operator">=</span> height <span class="token operator">-</span> s_y<span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span> <span class="token punctuation">;</span> <span class="token punctuation">(</span>s_x <span class="token operator">&lt;=</span> e_x<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token punctuation">(</span>s_y <span class="token operator">&lt;=</span> e_y<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    s_x<span class="token operator">+</span><span class="token operator">=</span><span class="token number">5</span><span class="token punctuation">,</span> s_y<span class="token operator">+</span><span class="token operator">=</span><span class="token number">5</span><span class="token punctuation">,</span> e_x<span class="token operator">-</span><span class="token operator">=</span><span class="token number">5</span><span class="token punctuation">,</span> e_y<span class="token operator">-</span><span class="token operator">=</span><span class="token number">5</span><span class="token punctuation">)</span>
+    <span class="token function">lcd_draw_rectangle</span><span class="token punctuation">(</span>s_x<span class="token punctuation">,</span> e_x<span class="token punctuation">,</span> s_y<span class="token punctuation">,</span> e_y<span class="token punctuation">,</span> <span class="token number">0xFFFFFF</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"frame draw over1\n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">munmap</span><span class="token punctuation">(</span>screen_base<span class="token punctuation">,</span> screen_size<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://actorjing.github.io/2024/01/31/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F5-FrameBuffer%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B/" title="Linux嵌入式5-FrameBuffer应用编程" target="_blank" rel="external">https://actorjing.github.io/2024/01/31/Linux嵌入式5-FrameBuffer应用编程/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/ActorJing" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/actor.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/ActorJing" target="_blank"><span class="text-dark">我超爱大海的</span><small class="ml-1x">long time no see</small></a></h3>
+        <div>个人简介。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2024/02/06/%E5%B5%8C%E5%85%A5%E5%BC%8FLinux6-UART%E4%B8%B2%E5%8F%A3/" title="嵌入式Linux6-UART串口"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2024/01/29/2024-1-25%E7%BA%A2%E6%98%9F%E8%B7%AF%E4%BA%92%E5%8B%89/" title="2024-1-25红星路互勉"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">    <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!-- <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+    <div class="copyright">
+    	
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer> -->
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'tYxMN2OZzN0cW9hwBDlP5EEV-gzGzoHsz',
+    appKey: '2KwEcCdsaVhXls99AiMISWuZ',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+
+<script src="false"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":300,"height":600},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>

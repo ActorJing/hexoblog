@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Linux嵌入式3-输入设备 | 我超爱大海的</title>
+  <meta name="description" content="1、输入类设备描述设备文件路径：&#x2F;dev&#x2F;input&#x2F;event 查看设备事件命令：cat &#x2F;proc&#x2F;bus&#x2F;input&#x2F;devices  2、linux内核描述输入设备描述事件查看事件描述符在”input-event-codes.h“文件中，已经在linux&#x2F;input.h中包含 struct input_even">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux嵌入式3-输入设备">
+<meta property="og:url" content="https://actorjing.github.io/2024/01/14/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F3-%E8%BE%93%E5%85%A5%E8%AE%BE%E5%A4%87/index.html">
+<meta property="og:site_name" content="我超爱大海的">
+<meta property="og:description" content="1、输入类设备描述设备文件路径：&#x2F;dev&#x2F;input&#x2F;event 查看设备事件命令：cat &#x2F;proc&#x2F;bus&#x2F;input&#x2F;devices  2、linux内核描述输入设备描述事件查看事件描述符在”input-event-codes.h“文件中，已经在linux&#x2F;input.h中包含 struct input_even">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/image-20240114204650594.png">
+<meta property="og:image" content="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/image-20240114212415740.png">
+<meta property="og:image" content="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/image-20240118215126784.png">
+<meta property="article:published_time" content="2024-01-14T11:04:22.000Z">
+<meta property="article:modified_time" content="2024-07-05T16:06:22.690Z">
+<meta property="article:author" content="Jing Wu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/image-20240114204650594.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://actorjing.github.io/2024/01/14/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F3-%E8%BE%93%E5%85%A5%E8%AE%BE%E5%A4%87/index.html">
+  
+    <link rel="alternate" href="/atom.xml" title="我超爱大海的" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/title_logo.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+  
+<meta name="generator" content="Hexo 6.3.0"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css"></head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/ActorJing" target="_blank">
+          <img class="img-circle img-rotate" src="/images/actor.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">我超爱大海的</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">long time no see</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Hefei, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-books">
+          <a href="/book">
+            
+            <i class="icon icon-book-fill"></i>
+            
+            <span class="menu-title">书单</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/FOC%E5%AD%A6%E4%B9%A0/">FOC学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%A6%E4%B9%A0/">Linux嵌入式学习</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97/">工作日志</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%91%84%E5%BD%B1%E6%97%A5%E8%AE%B0/">摄影日记</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/07/">七月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/02/">二月 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/01/">一月 2024</a><span class="archive-list-count">11</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97/">工作日志</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/07/05/%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97/" class="title">工作日志</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-07-05T13:57:10.000Z" itemprop="datePublished">2024-07-05</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%91%84%E5%BD%B1%E6%97%A5%E8%AE%B0/">摄影日记</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/02/15/2024-2-15%E4%B8%9C%E8%87%B3%E5%8E%BF%E5%9F%8E/" class="title">2024-2-15东至县城</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-02-15T02:41:49.000Z" itemprop="datePublished">2024-02-15</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%A6%E4%B9%A0/">Linux嵌入式学习</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/02/06/%E5%B5%8C%E5%85%A5%E5%BC%8FLinux6-UART%E4%B8%B2%E5%8F%A3/" class="title">嵌入式Linux6-UART串口</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-02-06T15:09:33.000Z" itemprop="datePublished">2024-02-06</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%A6%E4%B9%A0/">Linux嵌入式学习</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/01/31/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F5-FrameBuffer%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B/" class="title">Linux嵌入式5-FrameBuffer应用编程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-01-31T03:49:08.000Z" itemprop="datePublished">2024-01-31</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E6%91%84%E5%BD%B1%E6%97%A5%E8%AE%B0/">摄影日记</a>
+              </p>
+              <p class="item-title">
+                <a href="/2024/01/29/2024-1-25%E7%BA%A2%E6%98%9F%E8%B7%AF%E4%BA%92%E5%8B%89/" class="title">2024-1-25红星路互勉</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2024-01-29T07:21:49.000Z" itemprop="datePublished">2024-01-29</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1%E3%80%81%E8%BE%93%E5%85%A5%E7%B1%BB%E8%AE%BE%E5%A4%87%E6%8F%8F%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">1、输入类设备描述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2%E3%80%81linux%E5%86%85%E6%A0%B8%E6%8F%8F%E8%BF%B0"><span class="toc-number">2.</span> <span class="toc-text">2、linux内核描述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BE%93%E5%85%A5%E8%AE%BE%E5%A4%87%E6%8F%8F%E8%BF%B0%E4%BA%8B%E4%BB%B6"><span class="toc-number">2.0.1.</span> <span class="toc-text">输入设备描述事件</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3%E3%80%81%E8%AF%BB%E5%8F%96%E5%BC%80%E5%8F%91%E6%9D%BF%E4%B8%8A%E6%8A%A5%E4%BA%8B%E4%BB%B6"><span class="toc-number">3.</span> <span class="toc-text">3、读取开发板上报事件</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4%E3%80%81%E8%A7%A6%E6%91%B8%E5%B1%8F%E4%B8%8A%E6%8A%A5%E4%BA%8B%E4%BB%B6%E5%88%86%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text">4、触摸屏上报事件分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5%E3%80%81%E5%8D%95%E7%82%B9%E8%A7%A6%E6%91%B8%E6%B5%8B%E8%AF%95"><span class="toc-number">5.</span> <span class="toc-text">5、单点触摸测试</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6%E3%80%81%E5%A4%9A%E7%82%B9%E8%A7%A6%E6%91%B8%E6%B5%8B%E8%AF%95"><span class="toc-number">6.</span> <span class="toc-text">6、多点触摸测试</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Linux嵌入式3-输入设备" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Linux嵌入式3-输入设备
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2024/01/14/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F3-%E8%BE%93%E5%85%A5%E8%AE%BE%E5%A4%87/" class="article-date">
+	  <time datetime="2024-01-14T11:04:22.000Z" itemprop="datePublished">2024-01-14</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%A6%E4%B9%A0/">Linux嵌入式学习</a>
+  </span>
+
+        
+
+        
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2024/01/14/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F3-%E8%BE%93%E5%85%A5%E8%AE%BE%E5%A4%87/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h1 id="1、输入类设备描述"><a href="#1、输入类设备描述" class="headerlink" title="1、输入类设备描述"></a>1、输入类设备描述</h1><p>设备文件路径：&#x2F;dev&#x2F;input&#x2F;event</p>
+<p>查看设备事件命令：cat &#x2F;proc&#x2F;bus&#x2F;input&#x2F;devices</p>
+<p><img src="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/image-20240114204650594.png" alt="image-20240114204650594"></p>
+<h1 id="2、linux内核描述"><a href="#2、linux内核描述" class="headerlink" title="2、linux内核描述"></a>2、linux内核描述</h1><h3 id="输入设备描述事件"><a href="#输入设备描述事件" class="headerlink" title="输入设备描述事件"></a>输入设备描述事件</h3><p>查看事件描述符在”<strong>input-event-codes.h</strong>“文件中，已经在linux&#x2F;input.h中包含</p>
+<pre class=" language-c"><code class="language-c"><span class="token keyword">struct</span> input_event <span class="token punctuation">{</span>
+<span class="token macro property">#<span class="token directive keyword">if</span> (__BITS_PER_LONG != 32 || !defined(__USE_TIME_BITS64)) &amp;&amp; !defined(__KERNEL__)</span>
+    <span class="token keyword">struct</span> timeval time<span class="token punctuation">;</span>
+<span class="token macro property">#<span class="token directive keyword">define</span> input_event_sec time.tv_sec</span>
+<span class="token macro property">#<span class="token directive keyword">define</span> input_event_usec time.tv_usec</span>
+<span class="token macro property">#<span class="token directive keyword">else</span></span>
+    __kernel_ulong_t __sec<span class="token punctuation">;</span>
+<span class="token macro property">#<span class="token directive keyword">if</span> defined(__sparc__) &amp;&amp; defined(__arch64__)</span>
+    <span class="token keyword">unsigned</span> <span class="token keyword">int</span> __usec<span class="token punctuation">;</span>
+    <span class="token keyword">unsigned</span> <span class="token keyword">int</span> __pad<span class="token punctuation">;</span>
+<span class="token macro property">#<span class="token directive keyword">else</span></span>
+    __kernel_ulong_t __usec<span class="token punctuation">;</span>
+<span class="token macro property">#<span class="token directive keyword">endif</span></span>
+<span class="token macro property">#<span class="token directive keyword">define</span> input_event_sec  __sec</span>
+<span class="token macro property">#<span class="token directive keyword">define</span> input_event_usec __usec</span>
+<span class="token macro property">#<span class="token directive keyword">endif</span></span>
+    __u16 type<span class="token punctuation">;</span>
+    __u16 code<span class="token punctuation">;</span>
+    __s32 value<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">/*
+ timeval 为事件上报时间
+ type 为事件类型
+ code 为具体事件
+ value 为事件的值
+ 例如键盘按键KEY0按下时，type表示触发按键，code表示KEY0，value表示按下还是松开
+*/</span>
+</code></pre>
+<p><strong>数据同步：</strong></p>
+<p>同步事件<em><strong>EV_SYN</strong></em>用于实现同步操作、告知接收者本轮上报的数据已经完整，例如触摸屏幕一次操作需要上报x轴坐标，y轴坐标、触摸点信息等，此时就需要同步事件。同步事件的type类型如下：</p>
+<pre class=" language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">define</span> SYN_REPORT 0</span>
+<span class="token macro property">#<span class="token directive keyword">define</span> SYN_CONFIG 1</span>
+<span class="token macro property">#<span class="token directive keyword">define</span> SYN_MT_REPORT 2</span>
+<span class="token macro property">#<span class="token directive keyword">define</span> SYN_DROPPED 3</span>
+<span class="token macro property">#<span class="token directive keyword">define</span> SYN_MAX 0xf</span>
+<span class="token macro property">#<span class="token directive keyword">define</span> SYN_CNT (SYN_MAX+1)</span>
+</code></pre>
+<p><strong>所有的事件上报完成后都需要再上报一个同步事件，一般是SYN_REPORT，value为0。</strong></p>
+<h1 id="3、读取开发板上报事件"><a href="#3、读取开发板上报事件" class="headerlink" title="3、读取开发板上报事件"></a>3、读取开发板上报事件</h1><pre class=" language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/types.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/stat.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;fcntl.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;string.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;poll.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;linux/input.h></span></span>
+<span class="token comment" spellcheck="true">// /dev/input/event2</span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>argv<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">char</span> gpio_path<span class="token punctuation">[</span><span class="token number">100</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">char</span> file_path<span class="token punctuation">[</span><span class="token number">100</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">struct</span> input_event in_ev <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token number">0</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token keyword">struct</span> pollfd pfd<span class="token punctuation">;</span>
+    <span class="token keyword">char</span> val<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> fd<span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">//效验传参   ./exe /dev/input/event2</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">2</span> <span class="token operator">!=</span> argc<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span><span class="token string">"usage:%s &lt;gpio> &lt;value>\n"</span><span class="token punctuation">,</span> argv<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment" spellcheck="true">//打开事件</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">></span> <span class="token punctuation">(</span>fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span>O_RDONLY<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"open export error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment" spellcheck="true">//循环阻塞时读取上报事件</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token punctuation">;</span><span class="token punctuation">;</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">/* code */</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">sizeof</span><span class="token punctuation">(</span><span class="token keyword">struct</span> input_event<span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token function">read</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> <span class="token operator">&amp;</span>in_ev<span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span><span class="token keyword">struct</span> input_event<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">/* code */</span>
+            <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"read error!"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"type: %d code: %d value: %d\n"</span><span class="token punctuation">,</span>in_ev<span class="token punctuation">.</span>type<span class="token punctuation">,</span> in_ev<span class="token punctuation">.</span>code<span class="token punctuation">,</span> in_ev<span class="token punctuation">.</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        
+    <span class="token punctuation">}</span>
+    <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h1 id="4、触摸屏上报事件分析"><a href="#4、触摸屏上报事件分析" class="headerlink" title="4、触摸屏上报事件分析"></a>4、触摸屏上报事件分析</h1><p><img src="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/image-20240114212415740.png" alt="image-20240114212415740"></p>
+<p>按下触摸屏后触发绝对位移事件EV_ABS（type&#x3D;3）中的ABS_MT_TRACKING_ID（code&#x3D;57）事件，value为78，表示有一个新的触点被创建，value为-1时表示触点松开，触点的ID为78，53和54分别表示x坐标和y坐标。</p>
+<p>获取触摸屏信息  需要使用一个开放函数：ioctl（input&#x2F;output control）</p>
+<pre class=" language-c"><code class="language-c"><span class="token keyword">int</span> <span class="token function">ioctl</span><span class="token punctuation">(</span><span class="token keyword">int</span> fd<span class="token punctuation">,</span> <span class="token keyword">unsigned</span> <span class="token keyword">long</span> request<span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">/*
+ fd 是文件描述符，表示要控制的设备。
+ request 是控制命令，通常是一个宏，定义了要执行的特定操作。
+ 可选的参数 ... 取决于特定的 ioctl 命令，可能包含输入参数、输出参数或者不需要参数。
+*/</span>
+<span class="token comment" spellcheck="true">//查询触摸屏触点信息，存放在info中</span>
+<span class="token keyword">struct</span> input_absinfo info<span class="token punctuation">;</span>
+<span class="token keyword">if</span><span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">></span> <span class="token function">ioctl</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> <span class="token function">EVIOCGABS</span><span class="token punctuation">(</span>ABS_MT_SLOT<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token operator">&amp;</span>info<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"ioctl error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">/* 常用来处理陀螺仪数据
+struct input_absinfo {
+    __s32 value;
+    __s32 minimum;
+    __s32 maximum;
+    __s32 fuzz;
+    __s32 flat;
+    __s32 resolution;
+};
+*/</span>
+</code></pre>
+<p>获取触摸点程序源码：</p>
+<pre class=" language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/types.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/stat.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;fcntl.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;string.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;poll.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;linux/input.h></span></span>
+<span class="token comment" spellcheck="true">// /dev/input/event2</span>
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>argv<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">char</span> gpio_path<span class="token punctuation">[</span><span class="token number">100</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">char</span> file_path<span class="token punctuation">[</span><span class="token number">100</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">struct</span> input_absinfo info<span class="token punctuation">;</span>
+    <span class="token keyword">struct</span> pollfd pfd<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> max_slots<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> fd<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">2</span> <span class="token operator">!=</span> argc<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span><span class="token string">"usage:%s &lt;gpio> &lt;value>\n"</span><span class="token punctuation">,</span> argv<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">></span> <span class="token punctuation">(</span>fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span>O_RDONLY<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"open export error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">></span> <span class="token function">ioctl</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> <span class="token function">EVIOCGABS</span><span class="token punctuation">(</span>ABS_MT_SLOT<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token operator">&amp;</span>info<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"ioctl error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    max_slots <span class="token operator">=</span> info<span class="token punctuation">.</span>maximum <span class="token operator">-</span> info<span class="token punctuation">.</span>minimum<span class="token punctuation">;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"max slots: %d\n"</span><span class="token punctuation">,</span>max_slots<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h1 id="5、单点触摸测试"><a href="#5、单点触摸测试" class="headerlink" title="5、单点触摸测试"></a>5、单点触摸测试</h1><p>参考多点触摸实验</p>
+<h1 id="6、多点触摸测试"><a href="#6、多点触摸测试" class="headerlink" title="6、多点触摸测试"></a>6、多点触摸测试</h1><p>多点实验中，触摸点信息上报流程：</p>
+<p><img src="http://wochaoaidahaide.oss-cn-beijing.aliyuncs.com/img/image-20240118215126784.png" alt="image-20240118215126784"></p>
+<pre><code>第一个触摸点直接上报ABS_MT_TRACKING_ID，ID只需知道是否为0，-1，大于0即可，具体编号不需要关心
+出现第二个触摸点时，先上报ABS_MT_SLOT槽位信息，再上报坐标信息，最后上报ABS_MT_TRACKING_ID
+如果另一个触摸点发生移动时，先上传ABS_MT_SLOT，再上传坐标信息，相同触摸点移动不上报ABS_MT_SLOT
+</code></pre>
+<pre class=" language-c"><code class="language-c"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdio.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;stdlib.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/types.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;sys/stat.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;fcntl.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;unistd.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;string.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;poll.h></span></span>
+<span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">&lt;linux/input.h></span></span>
+<span class="token comment" spellcheck="true">// 多点触摸实验</span>
+<span class="token comment" spellcheck="true">// /dev/input/event1</span>
+<span class="token comment" spellcheck="true">//每个触摸点信息，valid为1时表示触摸点状态更新</span>
+<span class="token keyword">struct</span> ts_mt
+<span class="token punctuation">{</span>
+    <span class="token keyword">int</span> x<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> y<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> id<span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// 表示触摸屏的唯一ID ABS_MT_TRACKING_ID</span>
+    <span class="token keyword">int</span> valid<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">//缓存记录坐标，等待上报同步事件后再将坐标写在ts_mt结构体数组返回</span>
+<span class="token keyword">struct</span> tp_xy
+<span class="token punctuation">{</span>
+    <span class="token keyword">int</span> x<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> y<span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token comment" spellcheck="true">/* 读取一次同步事件的触摸点坐标
+fd: 时间句柄
+max_slots： 最大触摸点数
+mt: ts_mt数组指针
+*/</span>
+<span class="token keyword">static</span> <span class="token keyword">int</span> <span class="token function">ts_read</span><span class="token punctuation">(</span><span class="token keyword">const</span> <span class="token keyword">int</span> fd<span class="token punctuation">,</span> <span class="token keyword">const</span> <span class="token keyword">int</span> max_slots<span class="token punctuation">,</span> <span class="token keyword">struct</span> ts_mt <span class="token operator">*</span>mt<span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">//上报事件</span>
+    <span class="token keyword">struct</span> input_event in_ev<span class="token punctuation">;</span>
+    <span class="token keyword">static</span> <span class="token keyword">int</span> slot <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+    <span class="token keyword">static</span> <span class="token keyword">struct</span> tp_xy xy<span class="token punctuation">[</span><span class="token number">12</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token number">0</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span> i<span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">//清空ts_mt数组指针内容</span>
+    <span class="token function">memset</span><span class="token punctuation">(</span>mt<span class="token punctuation">,</span> <span class="token number">0x0</span><span class="token punctuation">,</span> max_slots<span class="token operator">*</span><span class="token keyword">sizeof</span><span class="token punctuation">(</span><span class="token keyword">struct</span> ts_mt<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">// 设置id为-2，不为0表示触摸点按下，-1表示触摸点松开</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span>i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> max_slots<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span>
+        mt<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>id <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">2</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token punctuation">;</span><span class="token punctuation">;</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token keyword">sizeof</span><span class="token punctuation">(</span><span class="token keyword">struct</span> input_event<span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token function">read</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> <span class="token operator">&amp;</span>in_ev<span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span><span class="token keyword">struct</span> input_event<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+            <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"read error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">switch</span> <span class="token punctuation">(</span>in_ev<span class="token punctuation">.</span>type<span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">// 判断绝对位移事件</span>
+            <span class="token keyword">case</span> EV_ABS<span class="token punctuation">:</span>
+                <span class="token keyword">switch</span> <span class="token punctuation">(</span>in_ev<span class="token punctuation">.</span>code<span class="token punctuation">)</span>
+                <span class="token punctuation">{</span>
+                        <span class="token comment" spellcheck="true">// 触摸点槽位 code=47</span>
+                    <span class="token keyword">case</span> ABS_MT_SLOT<span class="token punctuation">:</span>
+                        slot <span class="token operator">=</span> in_ev<span class="token punctuation">.</span>value<span class="token punctuation">;</span>
+                        <span class="token keyword">break</span><span class="token punctuation">;</span>
+                        <span class="token comment" spellcheck="true">// X轴坐标 code=53</span>
+                    <span class="token keyword">case</span> ABS_MT_POSITION_X<span class="token punctuation">:</span>
+                        xy<span class="token punctuation">[</span>slot<span class="token punctuation">]</span><span class="token punctuation">.</span>x <span class="token operator">=</span> in_ev<span class="token punctuation">.</span>value<span class="token punctuation">;</span>
+                        mt<span class="token punctuation">[</span>slot<span class="token punctuation">]</span><span class="token punctuation">.</span>valid <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+                        <span class="token keyword">break</span><span class="token punctuation">;</span>
+                        <span class="token comment" spellcheck="true">// y轴坐标 code=54</span>
+                    <span class="token keyword">case</span> ABS_MT_POSITION_Y<span class="token punctuation">:</span>
+                        xy<span class="token punctuation">[</span>slot<span class="token punctuation">]</span><span class="token punctuation">.</span>y <span class="token operator">=</span> in_ev<span class="token punctuation">.</span>value<span class="token punctuation">;</span>
+                        mt<span class="token punctuation">[</span>slot<span class="token punctuation">]</span><span class="token punctuation">.</span>valid <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+                        <span class="token keyword">break</span><span class="token punctuation">;</span>
+                        <span class="token comment" spellcheck="true">// 触摸点ID code=57 等于0表示移动事件</span>
+                    <span class="token keyword">case</span> ABS_MT_TRACKING_ID<span class="token punctuation">:</span>
+                        mt<span class="token punctuation">[</span>slot<span class="token punctuation">]</span><span class="token punctuation">.</span>id <span class="token operator">=</span> in_ev<span class="token punctuation">.</span>value<span class="token punctuation">;</span>
+                        mt<span class="token punctuation">[</span>slot<span class="token punctuation">]</span><span class="token punctuation">.</span>valid <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+                        <span class="token keyword">break</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                <span class="token keyword">break</span><span class="token punctuation">;</span>
+            <span class="token comment" spellcheck="true">// 判断同步事件</span>
+            <span class="token keyword">case</span> EV_SYN<span class="token punctuation">:</span>
+                <span class="token keyword">if</span><span class="token punctuation">(</span>SYN_REPORT<span class="token operator">==</span>in_ev<span class="token punctuation">.</span>code<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    <span class="token comment" spellcheck="true">//将记录的坐标更新到mt中</span>
+                    <span class="token keyword">for</span> <span class="token punctuation">(</span>size_t i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> max_slots<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span>
+                    <span class="token punctuation">{</span>
+                        mt<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>x <span class="token operator">=</span> xy<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>x<span class="token punctuation">;</span>
+                        mt<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>y <span class="token operator">=</span> xy<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>y<span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span>
+                <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+
+<span class="token keyword">int</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token keyword">int</span> argc<span class="token punctuation">,</span> <span class="token keyword">char</span> <span class="token operator">*</span>argv<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+    <span class="token keyword">char</span> gpio_path<span class="token punctuation">[</span><span class="token number">100</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">char</span> file_path<span class="token punctuation">[</span><span class="token number">100</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">struct</span> input_absinfo info<span class="token punctuation">;</span>
+    <span class="token keyword">struct</span> ts_mt <span class="token operator">*</span>mt <span class="token operator">=</span> <span class="token constant">NULL</span><span class="token punctuation">;</span>
+    <span class="token keyword">struct</span> pollfd pfd<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> max_slots<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> fd<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">2</span> <span class="token operator">!=</span> argc<span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token function">fprintf</span><span class="token punctuation">(</span><span class="token constant">stderr</span><span class="token punctuation">,</span><span class="token string">"usage:%s &lt;gpio> &lt;value>\n"</span><span class="token punctuation">,</span> argv<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">></span> <span class="token punctuation">(</span>fd <span class="token operator">=</span> <span class="token function">open</span><span class="token punctuation">(</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span>O_RDONLY<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"open export error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token number">0</span> <span class="token operator">></span> <span class="token function">ioctl</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> <span class="token function">EVIOCGABS</span><span class="token punctuation">(</span>ABS_MT_SLOT<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token operator">&amp;</span>info<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token function">perror</span><span class="token punctuation">(</span><span class="token string">"ioctl error"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">exit</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    max_slots <span class="token operator">=</span> info<span class="token punctuation">.</span>maximum <span class="token operator">+</span> <span class="token number">1</span> <span class="token operator">-</span> info<span class="token punctuation">.</span>minimum<span class="token punctuation">;</span>
+    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"max slots: %d\n"</span><span class="token punctuation">,</span>max_slots<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment" spellcheck="true">//创建长度为max_slots的触摸点信息数组</span>
+    mt <span class="token operator">=</span> <span class="token function">calloc</span><span class="token punctuation">(</span>max_slots<span class="token punctuation">,</span> <span class="token keyword">sizeof</span><span class="token punctuation">(</span><span class="token keyword">struct</span> ts_mt<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token punctuation">;</span> <span class="token punctuation">;</span> <span class="token punctuation">)</span>
+    <span class="token punctuation">{</span>
+        <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token operator">></span><span class="token function">ts_read</span><span class="token punctuation">(</span>fd<span class="token punctuation">,</span> max_slots<span class="token punctuation">,</span> mt<span class="token punctuation">)</span><span class="token punctuation">)</span>
+            <span class="token keyword">break</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>size_t i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> max_slots<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span>
+        <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">//判断第i个触摸点的状态是否发生改变</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>mt<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>valid<span class="token punctuation">)</span>
+            <span class="token punctuation">{</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token number">0</span><span class="token operator">&lt;=</span>mt<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>id<span class="token punctuation">)</span>
+                    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"slot&lt;%d>, 按下(%d, %d)\n"</span><span class="token punctuation">,</span> i<span class="token punctuation">,</span> mt<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>x<span class="token punctuation">,</span> mt<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>y<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">else</span> <span class="token keyword">if</span><span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">1</span><span class="token operator">==</span>mt<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>id<span class="token punctuation">)</span>
+                    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"slot&lt;%d>, 松开\n"</span><span class="token punctuation">,</span> i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">else</span>
+                    <span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"slot&lt;%d>, 移动(%d, %d)\n"</span><span class="token punctuation">,</span> i<span class="token punctuation">,</span> mt<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>x<span class="token punctuation">,</span> mt<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">.</span>y<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                
+            <span class="token punctuation">}</span>
+            
+        <span class="token punctuation">}</span>
+        
+    <span class="token punctuation">}</span>
+    <span class="token function">close</span><span class="token punctuation">(</span>fd<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">free</span><span class="token punctuation">(</span>mt<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">exit</span><span class="token punctuation">(</span>EXIT_FAILURE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    
+    <span class="token function">exit</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://actorjing.github.io/2024/01/14/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F3-%E8%BE%93%E5%85%A5%E8%AE%BE%E5%A4%87/" title="Linux嵌入式3-输入设备" target="_blank" rel="external">https://actorjing.github.io/2024/01/14/Linux嵌入式3-输入设备/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/ActorJing" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/actor.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/ActorJing" target="_blank"><span class="text-dark">我超爱大海的</span><small class="ml-1x">long time no see</small></a></h3>
+        <div>个人简介。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2024/01/16/%E8%99%AB%E5%AD%90%E7%A7%BB%E5%8A%A8%E9%97%AE%E9%A2%98/" title="虫子移动问题"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2024/01/14/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F2-GPIO%E7%BC%96%E7%A8%8B/" title="Linux嵌入式2-GPIO编程"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">    <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!-- <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+	
+    <div class="copyright">
+    	
+        <div class="publishby">
+        	Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.
+        </div>
+    </div>
+</footer> -->
+
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'tYxMN2OZzN0cW9hwBDlP5EEV-gzGzoHsz',
+    appKey: '2KwEcCdsaVhXls99AiMISWuZ',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: false
+  });
+  </script>
+
+     
+
+
+
+
+
+
+
+<script src="false"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/haruto.model.json"},"display":{"position":"right","width":300,"height":600},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
