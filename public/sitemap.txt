@@ -1,4 +1,5 @@
 https://actorjing.github.io/book/index.html
+https://actorjing.github.io/2024/07/06/%E7%AC%94%E8%AE%B0%E4%B8%8A%E4%BC%A0%E6%AD%A5%E9%AA%A4/
 https://actorjing.github.io/2024/01/13/2024-1-6%E5%A7%A5%E5%B1%B1%E5%B2%9B/
 https://actorjing.github.io/2024/01/21/2024-1-21%E5%9F%8E%E9%9A%8D%E5%BA%99/
 https://actorjing.github.io/2024/01/29/2024-1-25%E7%BA%A2%E6%98%9F%E8%B7%AF%E4%BA%92%E5%8B%89/
@@ -24,3 +25,4 @@ https://actorjing.github.io/categories/FOC%E5%AD%A6%E4%B9%A0/
 https://actorjing.github.io/categories/Linux%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%AD%A6%E4%B9%A0/
 https://actorjing.github.io/categories/%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97/
 https://actorjing.github.io/categories/%E7%AE%97%E6%B3%95/
+https://actorjing.github.io/categories/%E7%AC%94%E8%AE%B0%E4%B8%8A%E4%BC%A0/

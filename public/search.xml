@@ -4,6 +4,25 @@
   
     
     <entry>
+      <title>笔记上传步骤</title>
+      <link href="/2024/07/06/%E7%AC%94%E8%AE%B0%E4%B8%8A%E4%BC%A0%E6%AD%A5%E9%AA%A4/"/>
+      <url>/2024/07/06/%E7%AC%94%E8%AE%B0%E4%B8%8A%E4%BC%A0%E6%AD%A5%E9%AA%A4/</url>
+      
+        <content type="html"><![CDATA[<h3 id="1、pdf文档放在book-ebook目录下，同步git"><a href="#1、pdf文档放在book-ebook目录下，同步git" class="headerlink" title="1、pdf文档放在book&#x2F;ebook目录下，同步git"></a>1、pdf文档放在book&#x2F;ebook目录下，同步git</h3><h3 id="2、hexo创建笔记，上传git"><a href="#2、hexo创建笔记，上传git" class="headerlink" title="2、hexo创建笔记，上传git"></a>2、hexo创建笔记，上传git</h3><h3 id="3、将整个hexoblog工程同步git"><a href="#3、将整个hexoblog工程同步git" class="headerlink" title="3、将整个hexoblog工程同步git"></a>3、将整个hexoblog工程同步git</h3>]]></content>
+      
+      
+      <categories>
+          
+          <category> 笔记上传 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>工作日志</title>
       <link href="/2024/07/05/%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97/"/>
       <url>/2024/07/05/%E5%B7%A5%E4%BD%9C%E6%97%A5%E5%BF%97/</url>
